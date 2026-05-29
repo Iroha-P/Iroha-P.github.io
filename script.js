@@ -1,0 +1,136 @@
+const repos = [
+  {
+    name: 'airi-gemma',
+    lang: 'TypeScript',
+    description: 'AIRI Gemma local-first memory agent clone with GBrain, LLMWiki, Obsidian-style knowledge workflow and desktop stage.',
+    repo: 'https://github.com/Iroha-P/airi-gemma',
+    live: 'https://iroha-p.github.io/airi-gemma/',
+    tags: ['Memory Agent', 'GBrain', 'Desktop Stage'],
+  },
+  {
+    name: 'MultiModal-QC',
+    lang: 'Python',
+    description: 'Industrial multimodal quality-control demo with Qwen2-VL QLoRA, Agent Pipeline, FastAPI and Gradio.',
+    repo: 'https://github.com/Iroha-P/MultiModal-QC',
+    live: 'https://iroha-p.github.io/MultiModal-QC/',
+    tags: ['Multimodal', 'Qwen2-VL', 'Quality Control'],
+  },
+  {
+    name: 'Code-Island',
+    lang: 'C#',
+    description: 'Dynamic Island-style desktop companion for AI coding assistants such as Claude Code and Cursor.',
+    repo: 'https://github.com/Iroha-P/Code-Island',
+    live: 'https://iroha-p.github.io/Code-Island/',
+    tags: ['Windows', 'Agent UI', 'Desktop'],
+  },
+  {
+    name: 'GPT-Image-2-Studio',
+    lang: 'HTML',
+    description: 'Public OpenAI image-generation workbench with official API key flow and image skill integrations.',
+    repo: 'https://github.com/Iroha-P/GPT-Image-2-Studio',
+    live: 'https://iroha-p.github.io/GPT-Image-2-Studio/',
+    tags: ['OpenAI', 'Image Generation', 'Skills'],
+  },
+  {
+    name: 'cc-switch',
+    lang: 'Rust',
+    description: 'Cross-platform assistant switcher for Claude Code, Codex, OpenCode, OpenClaw, Gemini CLI and Hermes Agent.',
+    repo: 'https://github.com/Iroha-P/cc-switch',
+    live: 'https://ccswitch.io',
+    tags: ['Rust', 'CLI', 'Assistant Tools'],
+  },
+  {
+    name: 'Interlude-Deck',
+    lang: 'JavaScript',
+    description: 'Codex-aware microlearning companion with timed reward gating and study break mechanics.',
+    repo: 'https://github.com/Iroha-P/Interlude-Deck',
+    tags: ['Learning', 'Codex', 'Web'],
+  },
+  {
+    name: 'skills',
+    lang: 'Python',
+    description: 'Public repository for reusable Agent Skills.',
+    repo: 'https://github.com/Iroha-P/skills',
+    tags: ['Agent Skills', 'Automation'],
+  },
+  {
+    name: 'airi',
+    lang: 'TypeScript',
+    description: 'Self-hosted, user-owned companion platform for voice chat, desktop/web companion scenarios and game integrations.',
+    repo: 'https://github.com/Iroha-P/airi',
+    live: 'https://airi.moeru.ai/docs/',
+    tags: ['Companion AI', 'Voice', 'Desktop'],
+  },
+  {
+    name: 'FormulaSnap',
+    lang: 'JavaScript',
+    description: 'Screenshot math formulas, recognize with vision models, convert to MathML and paste into MathType.',
+    repo: 'https://github.com/Iroha-P/FormulaSnap',
+    tags: ['Vision', 'MathML', 'MathType'],
+  },
+  {
+    name: 'MiniBox',
+    lang: 'Python',
+    description: 'Character voice chatbot with GPT-SoVITS TTS, LLM role-playing, Web UI and ESP32 figurine hardware client.',
+    repo: 'https://github.com/Iroha-P/MiniBox',
+    tags: ['Voice Chat', 'GPT-SoVITS', 'ESP32'],
+  },
+  {
+    name: 'Image-Prompt-Generator',
+    lang: 'JavaScript',
+    description: 'AI image recognition and prompt generation tool for Chrome extension and standalone web workflows.',
+    repo: 'https://github.com/Iroha-P/Image-Prompt-Generator',
+    tags: ['Image to Prompt', 'Chrome Extension', 'Multimodal'],
+  },
+  {
+    name: 'desktop_status_bar',
+    lang: 'Python',
+    description: 'Desktop status-bar experiment for lightweight local UI feedback.',
+    repo: 'https://github.com/Iroha-P/desktop_status_bar',
+    tags: ['Desktop', 'Status UI'],
+  },
+  {
+    name: 'claw-code',
+    lang: 'Rust',
+    description: 'Rust-based agent tooling experiment inspired by fast, practical coding harness workflows.',
+    repo: 'https://github.com/Iroha-P/claw-code',
+    tags: ['Rust', 'Agent Tools'],
+  },
+];
+
+const grid = document.querySelector('#repoGrid');
+
+grid.innerHTML = repos.map((repo) => {
+  const live = repo.live ? `<a href="${repo.live}">Live</a>` : '';
+  return `
+    <article class="repo-card">
+      <div class="repo-top">
+        <h3>${repo.name}</h3>
+        <span class="repo-lang">${repo.lang}</span>
+      </div>
+      <p>${repo.description}</p>
+      <div class="pills">${repo.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
+      <div class="repo-links">
+        ${live}
+        <a href="${repo.repo}">Repo</a>
+      </div>
+    </article>
+  `;
+}).join('');
+
+const revealItems = document.querySelectorAll('.section-head, .feature-card, .repo-card');
+revealItems.forEach((item, index) => {
+  item.classList.add('reveal');
+  item.style.transitionDelay = `${Math.min(index * 35, 240)}ms`;
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.14 });
+
+revealItems.forEach((item) => observer.observe(item));
