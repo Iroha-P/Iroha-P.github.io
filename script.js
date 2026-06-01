@@ -24,14 +24,6 @@ const repos = [
     tags: ['Windows', 'Agent UI', 'Desktop'],
   },
   {
-    name: 'GPT-Image-2-Studio',
-    lang: 'HTML',
-    description: 'Public OpenAI image-generation workbench with official API key flow and image skill integrations.',
-    repo: 'https://github.com/Iroha-P/GPT-Image-2-Studio',
-    live: 'https://iroha-p.github.io/GPT-Image-2-Studio/',
-    tags: ['OpenAI', 'Image Generation', 'Skills'],
-  },
-  {
     name: 'cc-switch',
     lang: 'Rust',
     description: 'Cross-platform assistant switcher for Claude Code, Codex, OpenCode, OpenClaw, Gemini CLI and Hermes Agent.',
