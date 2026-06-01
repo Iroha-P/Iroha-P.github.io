@@ -134,3 +134,19 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.14 });
 
 revealItems.forEach((item) => observer.observe(item));
+
+const petalLayer = document.createDocumentFragment();
+const petalCount = window.matchMedia('(max-width: 700px)').matches ? 10 : 18;
+
+for (let index = 0; index < petalCount; index += 1) {
+  const petal = document.createElement('span');
+  petal.className = 'petal';
+  petal.style.setProperty('--x', `${Math.random() * 100}vw`);
+  petal.style.setProperty('--size', `${10 + Math.random() * 12}px`);
+  petal.style.setProperty('--drift', `${-80 + Math.random() * 160}px`);
+  petal.style.setProperty('--duration', `${12 + Math.random() * 10}s`);
+  petal.style.setProperty('--delay', `${Math.random() * -16}s`);
+  petalLayer.appendChild(petal);
+}
+
+document.body.appendChild(petalLayer);
