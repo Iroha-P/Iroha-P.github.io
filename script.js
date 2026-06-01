@@ -68,25 +68,11 @@ const repos = [
     tags: ['Voice Chat', 'GPT-SoVITS', 'ESP32'],
   },
   {
-    name: 'Image-Prompt-Generator',
-    lang: 'JavaScript',
-    description: 'AI image recognition and prompt generation tool for Chrome extension and standalone web workflows.',
-    repo: 'https://github.com/Iroha-P/Image-Prompt-Generator',
-    tags: ['Image to Prompt', 'Chrome Extension', 'Multimodal'],
-  },
-  {
     name: 'desktop_status_bar',
     lang: 'Python',
     description: 'Desktop status-bar experiment for lightweight local UI feedback.',
     repo: 'https://github.com/Iroha-P/desktop_status_bar',
     tags: ['Desktop', 'Status UI'],
-  },
-  {
-    name: 'claw-code',
-    lang: 'Rust',
-    description: 'Rust-based agent tooling experiment inspired by fast, practical coding harness workflows.',
-    repo: 'https://github.com/Iroha-P/claw-code',
-    tags: ['Rust', 'Agent Tools'],
   },
 ];
 
