@@ -1,5 +1,13 @@
 const repos = [
   {
+    name: 'Iroha-P.github.io',
+    lang: 'CSS',
+    description: 'Public portfolio homepage for Iroha-P projects, collecting featured pages and repository links in one place.',
+    repo: 'https://github.com/Iroha-P/Iroha-P.github.io',
+    live: 'https://iroha-p.github.io/',
+    tags: ['Portfolio', 'GitHub Pages', 'Project Index'],
+  },
+  {
     name: 'airi-gemma',
     lang: 'TypeScript',
     description: 'AIRI Gemma local-first memory agent clone with GBrain, LLMWiki, Obsidian-style knowledge workflow and desktop stage.',
@@ -73,7 +81,15 @@ const repos = [
     lang: 'Python',
     description: 'Character voice chatbot with GPT-SoVITS TTS, LLM role-playing, Web UI and ESP32 figurine hardware client.',
     repo: 'https://github.com/Iroha-P/MiniBox',
+    live: 'https://iroha-p.github.io/MiniBox/',
     tags: ['Voice Chat', 'GPT-SoVITS', 'ESP32'],
+  },
+  {
+    name: 'claw-code',
+    lang: 'Rust',
+    description: 'Better harness tools for agentic coding workflows, maintained as a Rust-based fork experiment.',
+    repo: 'https://github.com/Iroha-P/claw-code',
+    tags: ['Rust', 'Agent Tools', 'Fork'],
   },
   {
     name: 'desktop_status_bar',
