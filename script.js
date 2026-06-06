@@ -24,6 +24,14 @@ const repos = [
     tags: ['Windows', 'Agent UI', 'Desktop'],
   },
   {
+    name: 'image2-local-studio',
+    lang: 'JavaScript',
+    description: 'Local GPT Image 2 studio with editable Chinese prompt skills, official native sizes, 4K upscaling and a saved image wall.',
+    repo: 'https://github.com/Iroha-P/image2-local-studio',
+    live: 'https://iroha-p.github.io/image2-local-studio/',
+    tags: ['GPT Image 2', 'Prompt Skills', 'Local Studio'],
+  },
+  {
     name: 'cc-switch',
     lang: 'Rust',
     description: 'Cross-platform assistant switcher for Claude Code, Codex, OpenCode, OpenClaw, Gemini CLI and Hermes Agent.',
