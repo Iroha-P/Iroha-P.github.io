@@ -20,6 +20,7 @@ const repoCopy = {
   FormulaSnap: 'Vision tool that recognizes formulas from screenshots and converts them for MathType workflows.',
   'Interlude-Deck': 'Codex-aware microlearning companion with study-break and reward-gating mechanics.',
   'cc-switch': 'Cross-platform configuration switcher for coding assistants and local agent runtimes.',
+  'c-drive-cache-helper': 'Conservative Windows C drive cache helper with scan-first UI, safety tests and local reports.',
 };
 
 const excludedRepoNames = new Set([
@@ -41,6 +42,8 @@ const fallbackRepos = featuredOrder.map((name) => ({
   html_url: `https://github.com/${owner}/${name}`,
 }));
 
+const fallbackByName = new Map(fallbackRepos.map((repo) => [repo.name, repo]));
+
 const repoList = document.querySelector('#repoList');
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, (character) => ({
@@ -57,11 +60,10 @@ const getDisplayRepos = (repos) => {
   const publicProjectRepos = repos
     .filter((repo) => !excludedRepoNames.has(repo.name))
     .filter((repo) => repo.private !== true)
-    .filter((repo) => repo.archived !== true)
-    .filter((repo) => repo.fork !== true);
+    .filter((repo) => repo.archived !== true);
 
   const byName = new Map(publicProjectRepos.map((repo) => [repo.name, repo]));
-  const pinned = featuredOrder.map((name) => byName.get(name)).filter(Boolean);
+  const pinned = featuredOrder.map((name) => byName.get(name) || fallbackByName.get(name)).filter(Boolean);
   const pinnedNames = new Set(pinned.map((repo) => repo.name));
   const latest = publicProjectRepos
     .filter((repo) => !pinnedNames.has(repo.name))
