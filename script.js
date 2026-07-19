@@ -22,6 +22,10 @@ const repoCopy = {
   'cc-switch': 'Cross-platform configuration switcher for coding assistants and local agent runtimes.',
 };
 
+const excludedRepoNames = new Set([
+  'Iroha-P.github.io',
+]);
+
 const fallbackRepos = featuredOrder.map((name) => ({
   name,
   language: {
@@ -47,9 +51,27 @@ const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, (character)
   "'": '&#39;',
 }[character]));
 
+const getRepoTime = (repo) => new Date(repo.pushed_at || repo.updated_at || repo.created_at || 0).getTime();
+
+const getDisplayRepos = (repos) => {
+  const publicProjectRepos = repos
+    .filter((repo) => !excludedRepoNames.has(repo.name))
+    .filter((repo) => repo.private !== true)
+    .filter((repo) => repo.archived !== true)
+    .filter((repo) => repo.fork !== true);
+
+  const byName = new Map(publicProjectRepos.map((repo) => [repo.name, repo]));
+  const pinned = featuredOrder.map((name) => byName.get(name)).filter(Boolean);
+  const pinnedNames = new Set(pinned.map((repo) => repo.name));
+  const latest = publicProjectRepos
+    .filter((repo) => !pinnedNames.has(repo.name))
+    .sort((a, b) => getRepoTime(b) - getRepoTime(a));
+
+  return [...pinned, ...latest];
+};
+
 const renderRepos = (repos) => {
-  const byName = new Map(repos.map((repo) => [repo.name, repo]));
-  const selected = featuredOrder.map((name) => byName.get(name)).filter(Boolean);
+  const selected = getDisplayRepos(repos);
 
   repoList.innerHTML = selected.map((repo) => `
     <article class="repo-item">
