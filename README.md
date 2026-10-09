@@ -20,12 +20,15 @@
 
 ```sh
 node --check script.js
-node --test tests/portfolio.test.cjs
+node --check projects/gradloop/script.js
+node --test tests/*.test.cjs
 ```
 
 使用静态 HTTP 服务预览仓库根目录。`localhost` / `127.0.0.1` 使用 2026-10-09 核对的内置公开项目索引；线上尝试同步 GitHub API，失败时保留内置索引并提示时效。成功同步不会重新加入已缺失、私有或归档的仓库。
 
 ## 发布与内容维护
+
+GradLoop 的独立项目页位于 `projects/gradloop/`，使用原始品牌标志、真实公开合成界面与独立背景素材；与功能 Demo 和模型实验仓分开。主页提供详情入口，不在作品集启动模型或存储上传资料。
 
 使用当前 GitHub Pages 配置发布，不引入新托管平台。内容变更先走独立分支；合入 Pages 配置的发布分支后才会改变线上主页。
 
