@@ -445,7 +445,7 @@ h1 span {
 
 .case-row {
   display: grid;
-  grid-template-columns: minmax(220px, 0.72fr) minmax(430px, 1.34fr) minmax(360px, 1fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.34fr) minmax(0, 1fr);
   gap: 34px;
   align-items: center;
   padding: 34px 0;
@@ -689,6 +689,22 @@ h1 span {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid var(--line-strong);
+}
+
+.repo-status {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.repo-fork {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .repo-item {
