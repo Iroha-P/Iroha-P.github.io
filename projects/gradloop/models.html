@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>模型与评测 · GradLoop 研循</title>
+  <meta name="description" content="深入 GradLoop 的来源与证据契约、来源关联划分、Ascend Base/LoRA 实验、MiniCPM-o 服务边界、浏览器文档解析与人工双评，区分实现、历史实测和待验收能力。" />
+  <meta name="theme-color" content="#fcfcf7" />
+  <link rel="icon" href="../../assets/gradloop/icon.png" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="technical-page models-page">
+  <a class="skip-link" href="#main">跳到模型与评测内容</a>
+  <header class="site-header" id="top">
+    <nav class="wrap navigation" aria-label="项目导航">
+      <a class="brand" href="index.html" aria-label="GradLoop 研循，返回项目概览"><img src="../../assets/gradloop/icon.png" width="38" height="38" alt="" /><strong>GradLoop · 研循</strong></a>
+      <button class="nav-toggle" type="button" aria-label="展开项目导航" aria-expanded="false" aria-controls="project-navigation" hidden><i class="ph ph-list" aria-hidden="true"></i><span>导航</span></button>
+      <div class="nav-links" id="project-navigation">
+        <a data-page-link href="index.html">项目与架构</a>
+        <a data-page-link href="rag.html">知识与 RAG</a>
+        <a data-page-link href="agent.html">Agent 工作流</a>
+        <a data-page-link href="models.html" aria-current="page">模型与评测</a>
+        <a class="github-link button primary" href="https://github.com/Iroha-P/gradloop-ragsdk-omni" target="_blank" rel="noreferrer">GitHub <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="page-hero" aria-labelledby="page-title"><div class="wrap page-hero-grid">
+      <div>
+        <p class="eyebrow">MODEL ENGINEERING · MEASURED, NOT ASSUMED</p>
+        <h1 id="page-title">模型能力，<br />要有实验边界。</h1>
+        <p class="page-lead">从来源许可与数据划分，到 Ascend 上的 Base / LoRA、媒体服务和文档解析，GradLoop 将模型接入拆成可检查的工程环节。这里既说明实现机制，也保留冻结评测的失败、历史运行的适用范围，以及当前版本仍需完成的联调验收。</p>
+        <p class="page-meta">04 / 04 · PUBLIC SOURCE WALKTHROUGH</p>
+      </div>
+      <nav class="page-map" aria-label="本页目录">
+        <p>本页内容</p>
+        <a href="#roles"><span>01</span>双仓与模型分工</a>
+        <a href="#provenance"><span>02</span>来源与数据划分</a>
+        <a href="#stage-a"><span>03</span>合成数据与发布闸门</a>
+        <a href="#stage-b"><span>04</span>Base / LoRA 实验</a>
+        <a href="#historical-live"><span>05</span>另一份历史 live 证据</a>
+        <a href="#service"><span>06</span>服务契约与兼容性</a>
+        <a href="#documents"><span>07</span>浏览器文档模式</a>
+        <a href="#evaluation"><span>08</span>人工双评与下一次验收</a>
+      </nav>
+    </div></section>
+
+    <section class="section" id="roles"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">TWO REPOSITORIES, DISTINCT RESPONSIBILITIES</p><h2>应用与模型工程，分别交付。</h2></div><p>应用可以独立运行。<br />使用学习产品，不等于必须训练模型。</p></div>
+      <div class="prose">
+        <p><code>gradloop-ragsdk-omni</code> 管理 API、RAG、Agent、界面与学习状态；<code>gradloop-ragsdk-omni-training</code> 管理来源策略、合成数据、冻结评测、NPU 实验和模型服务。分仓隔离了重型计算依赖与应用发布节奏，但不自动保证协议一致。本页按 2026-10-10 核验的公开 main 编写：应用版本 <code>ad9aafdd79e4</code>、Training 版本 <code>0364c69f5a91</code>；来源链接固定到完整提交。</p>
+      </div>
+      <div class="technical-grid three">
+        <article class="module"><i class="ph ph-desktop" aria-hidden="true"></i><h3>本地 Qwen：文字与复核</h3><p>默认配置名为 <code>qwen3-4b-q4</code>，通过仅允许回环地址的 llama.cpp 客户端生成证据内回答。结构化批改是旁路建议：校验 JSON、量表和分差，最多尝试两次；确定性评分仍决定错题与计划状态。</p></article>
+        <article class="module"><i class="ph ph-cpu" aria-hidden="true"></i><h3>MiniCPM-o：媒体理解</h3><p>MiniCPM-o 4.5 作为独立多模态后端，承担图像、音频等材料理解。Training 保存 Ascend Base / LoRA 的实验流程，不把训练步骤塞进业务 API，也不要求应用随附权重。</p></article>
+        <article class="module"><i class="ph ph-plugs-connected" aria-hidden="true"></i><h3>MAP：可选文字会话</h3><p>浏览器经 Worker 代理连接 MAP。文档模式可以把用户确认后的正文作为文字输入；本地解析不依赖这个连接。代理地址存在、会话就绪与一次推理成功，是不同状态。</p></article>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/core/config.py#L45-L70" target="_blank" rel="noreferrer">双模型配置</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/llm_grading.py#L98-L184" target="_blank" rel="noreferrer">StructuredLlmGrader.review</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/README.md#L24-L54" target="_blank" rel="noreferrer">双仓职责</a></p>
+    </div></section>
+
+    <section class="section" id="provenance"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">DATA CONTRACT &amp; SOURCE-CONNECTED SPLITS</p><h2>先证明数据从哪里来。</h2></div><p>来源、证据和生成配方可关联，<br />才有资格进入实验流程。</p></div>
+      <figure class="system-figure" data-diagram="source-splits" aria-labelledby="splits-figure-title">
+        <header class="figure-heading"><span class="figure-number">FIG. 04.1</span><div><h3 id="splits-figure-title">先按来源连起来，再划分数据</h3><p class="figure-subtitle">避免同源泄漏 · 不把每条样本独立随机切开</p></div></header>
+        <ol class="diagram-flow">
+          <li class="diagram-node"><span class="node-tag">01 / PROVENANCE</span><i class="ph ph-fingerprint" aria-hidden="true"></i><strong>核对来源身份</strong><small>许可与用途<br />内容 / recipe 哈希</small></li>
+          <li class="diagram-node is-accent"><span class="node-tag">02 / COMPONENTS</span><i class="ph ph-share-network" aria-hidden="true"></i><strong>连接共享来源</strong><small>并查集：共享 source_id<br />组成同一个来源组件</small></li>
+          <li class="diagram-node"><span class="node-tag">03 / HASH BUCKETS</span><i class="ph ph-columns" aria-hidden="true"></i><strong>组件整体分桶</strong><small>排序来源 + salt → SHA-256<br />组件只进入一个 split</small></li>
+        </ol>
+        <div class="split-buckets" aria-label="一百个哈希桶的规则分配：训练八十桶，验证十桶，测试十桶">
+          <div class="split-train"><strong>TRAIN</strong><span>80 个桶</span></div><div class="split-validation"><strong>VAL</strong><span>10 个桶</span></div><div class="split-test"><strong>TEST</strong><span>10 个桶</span></div>
+        </div>
+        <p class="diagram-note">带宽表示哈希桶规则，不是实际样本占比。小样本不保证 8:1:1；冻结评测从 test 派生，并逐来源验证没有跨 split 泄漏。</p>
+        <figcaption>来源许可检查、来源组件划分和冻结集构建是三个独立检查；这条流程不意味着已经训练过大规模真实用户数据。</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>不是一个文本文件，而是一组可校验的关系</h3>
+        <p><code>TrainingSample</code> 同时携带场景、任务、prompt、参考答案、rubric，以及 <code>source_ids</code>、<code>evidence_ids</code>、<code>provenance_ids</code>。公开来源的 provenance 保存内容 SHA-256、UTC 获取时间、许可证和允许用途；合成来源保存 recipe 名称、版本与哈希。构建器要求样本的 provenance 集合精确等于其来源对应的身份集合，证据字典也必须与实际引用完全匹配，拒绝缺项和未引用内容。</p>
+        <h3>许可闸门默认拒绝，不把“公开可见”当许可</h3>
+        <p>来源策略检查 HTTPS 公网地址、许可证 URL、用途、署名和声明的访问限制；未知许可、登录或付费来源被拒绝。<code>model_training</code> 必须被显式允许，当前策略中的 CC-BY-SA-4.0 不具备该用途。采集器还要求显式注入 fetcher，默认不抓取。它检查的是声明与策略的一致性，不能替代人工许可审查或外部法律核验。</p>
+        <h3>来源关联划分：把共享来源留在同一侧</h3>
+        <p><code>assign_source_connected_splits</code> 用并查集连接共享来源，再对排序后的来源组件与 salt 做 SHA-256 分桶：80 个桶用于 train、10 个用于 validation、10 个用于 test。这是组件级确定性规则，不保证小样本恰好按 8:1:1 分配。随后逐来源验证没有跨 split 泄漏；冻结评测只从 test 派生，避免同源材料同时用于训练与测试。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_data/source_registry.py#L152-L335" target="_blank" rel="noreferrer">来源与 recipe manifest</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/scripts/build_stage_a_bundle.py#L151-L229" target="_blank" rel="noreferrer">证据、provenance 与 test 关联</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_data/splits.py#L23-L113" target="_blank" rel="noreferrer">来源组件划分</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_data/web_sources.py#L370-L485" target="_blank" rel="noreferrer">来源策略与显式采集</a></p>
+    </div></section>
+
+    <section class="section" id="stage-a"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">STAGE A · SYNTHETIC FOUNDATION</p><h2>合成数据，验证流程而非效果。</h2></div><p>能构建、能拒绝、能冻结，<br />先于“模型是否更好”。</p></div>
+      <dl class="fact-grid"><div><dt>推荐构建规模</dt><dd>60 条合成样本</dd></div><div><dt>场景覆盖</dt><dd>课程 / 技术面试 / 科研答辩</dd></div><div><dt>冻结 test</dt><dd>5 条 · 拒答支持 3 / 2</dd></div><div><dt>媒体 sidecar</dt><dd>60 个 · 不含二进制媒体</dd></div></dl>
+      <div class="prose">
+        <h3>sidecar 是媒体描述，不是训练过真实多模态数据</h3>
+        <p>Stage A 每场景推荐 20 条确定性样本，包含 document、image、audio sidecar 中的 OCR、transcript 或 metadata 文本，用来验证 schema 和扫描覆盖。冻结集必须非空、覆盖三个场景，并同时存在应拒答与不应拒答案例；当前 recipe 与 salt 下每场景 17 条是首次满足这些条件的数量。不能把这些 fixture 写成真实用户数据或生产级多模态训练集。</p>
+        <h3>发布前扫描，失败不产生半成品</h3>
+        <p>闸门扫描 prompt、参考答案、rubric、追问、sidecar 与全部引用证据，检查个人信息模式、凭据和本机路径。近似复制检查将中文字符及英文词元归一化，以带重叠的有界分块查找连续复制片段；这是启发式检查，不是语义查重。finding 只保留安全 ID、字段和原因码。全部校验通过后才用临时目录原子发布，已有目标目录不合并、不覆盖。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/docs/stage-a-runbook.md#L15-L68" target="_blank" rel="noreferrer">Stage A 数量与评测条件</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_data/release_gate.py#L60-L193" target="_blank" rel="noreferrer">近似复制与隐私扫描</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/scripts/build_stage_a_bundle.py#L245-L364" target="_blank" rel="noreferrer">冻结后置条件与原子发布</a></p>
+    </div></section>
+
+    <section class="section" id="stage-b"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">2026-07-29 · ASCEND 910C EXPERIMENT</p><h2>LoRA 跑通了，Base 仍然保留。</h2></div><p>保存成功与重载成功，<br />都不等于模型质量提升。</p></div>
+      <figure class="system-figure" data-diagram="frozen-comparison" aria-labelledby="comparison-figure-title">
+        <header class="figure-heading"><span class="figure-number">FIG. 04.2</span><div><h3 id="comparison-figure-title">同一冻结集，零观测增益</h3><p class="figure-subtitle">2026-07-29 历史结果 · 5 个合成案例 · 指标范围均为 0—1</p></div></header>
+        <ul class="diagram-legend"><li><span class="legend-swatch base-swatch" aria-hidden="true"></span>Base</li><li><span class="legend-swatch lora-swatch" aria-hidden="true"></span>重载 LoRA</li></ul>
+        <div class="comparison-chart">
+          <div class="comparison-metric"><strong>引用精确率</strong><div class="metric-row"><span>Base</span><span class="metric-track" data-value="0"><span class="metric-fill" style="--value: 0"></span></span><b>0.0</b></div><div class="metric-row is-lora"><span>LoRA</span><span class="metric-track" data-value="0"><span class="metric-fill" style="--value: 0"></span></span><b>0.0</b></div></div>
+          <div class="comparison-metric"><strong>拒答准确率</strong><div class="metric-row"><span>Base</span><span class="metric-track" data-value="0.4"><span class="metric-fill" style="--value: 0.4"></span></span><b>0.4</b></div><div class="metric-row is-lora"><span>LoRA</span><span class="metric-track" data-value="0.4"><span class="metric-fill" style="--value: 0.4"></span></span><b>0.4</b></div></div>
+          <div class="comparison-metric"><strong>结构有效率</strong><div class="metric-row"><span>Base</span><span class="metric-track" data-value="0"><span class="metric-fill" style="--value: 0"></span></span><b>0.0</b></div><div class="metric-row is-lora"><span>LoRA</span><span class="metric-track" data-value="0"><span class="metric-fill" style="--value: 0"></span></span><b>0.0</b></div></div>
+        </div>
+        <div class="comparison-verdict"><div><span>Base composite</span><strong>0.1333</strong></div><div><span>LoRA composite</span><strong>0.1333</strong></div><div class="verdict-result"><span>绝对增益 0 · 未达 +0.05 门槛</span><strong>保留 Base</strong></div></div>
+        <figcaption>条形从零开始，长度为对应指标值，零值保持空轨道。此图只复述固定环境下的冻结结果，不是本页重新运行，不支持模型泛化或真实用户效果结论。</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>固定环境与一次优化更新</h3>
+        <p>历史实验在 HiDevLab Ascend 910C 上运行 MiniCPM-o 4.5，固定 revision 为 <code>438cf37032d6a94b57d7d7a6cb6eda040c4cc922</code>；记录 Python 3.11.15、PyTorch / torch-npu 2.10.0、Transformers 4.51.3、ms-swift 4.3.1。LoRA 使用 10 条合成样本、rank 8、alpha 16、all-linear、batch 1、最大长度 512，<code>max_steps: 1</code>，冻结 ViT 与 aligner，关闭 Hub push。</p>
+        <p>运行器检查 optimizer step 与 adapter 权重/config，只允许 adapter-only 工件，拒绝完整模型权重输出。重载通过 <code>PeftModel.from_pretrained(..., is_trainable=False)</code> 完成，再走与 Base 相同的 smoke 和冻结复评；报告保留输出哈希、时延和内存，不保留原始回答。</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Base 与 LoRA 历史实验对照，可横向滚动"><table>
+        <caption>2026-07-29 历史聚合结果；不是本页重新运行的实验</caption>
+        <thead><tr><th scope="col">检查项</th><th scope="col">Base</th><th scope="col">重载 LoRA</th><th scope="col">如何理解</th></tr></thead>
+        <tbody>
+          <tr><td>四路 smoke</td><td>10 / 10</td><td>10 / 10</td><td>text 2、vision 3、audio 3、omni 2</td></tr>
+          <tr><td>smoke 平均首块 / E2E</td><td>668.8 / 2826.0 ms</td><td>516.1 / 4024.4 ms</td><td>限定环境与合成案例，不是线上延迟</td></tr>
+          <tr><td>smoke 峰值 NPU 内存</td><td>31.16 GiB</td><td>31.32 GiB</td><td>该运行条件下的资源证据</td></tr>
+          <tr><td>5 条冻结案例 composite</td><td>0.1333</td><td>0.1333</td><td>绝对增益为 0，决策 retain_base</td></tr>
+          <tr><td>引用 / 拒答 / 结构有效</td><td>0 / 0.4 / 0</td><td>0 / 0.4 / 0</td><td>保留失败指标，不只展示通过项</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose"><h3>晋级门看冻结指标，而不是训练日志</h3><p>复合分数是 citation precision、refusal accuracy、structure valid rate 的未加权平均，LoRA 至少取得 +0.05 的绝对增益才晋级。比较器还校验模型 revision、评测案例哈希和 adapter 身份。这里双方同为 0.1333，因此保留 Base。报告中的 recall@k=1 来自冻结案例预置证据，不是模型独立检索结果；五个案例与一次更新也不能证明泛化或业务效果。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/docs/stage-b-npu-results-2026-07-29.md#L13-L89" target="_blank" rel="noreferrer">Stage B 实测报告</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/configs/stage-b/minicpmo-lora-feasibility.yaml#L1-L31" target="_blank" rel="noreferrer">单步 LoRA 配置</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_npu/comparison.py#L38-L98" target="_blank" rel="noreferrer">身份校验与晋级规则</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_npu/base_smoke.py#L318-L340" target="_blank" rel="noreferrer">PEFT adapter 重载</a></p>
+    </div></section>
+
+    <section class="section" id="historical-live"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">2026-08-27 · SEPARATE HISTORICAL EVIDENCE</p><h2>另一轮 live 证据，单独归档。</h2></div><p>日期、模型来源和服务版本不同，<br />不能合并成一次更强的结论。</p></div>
+      <div class="technical-grid">
+        <article class="module"><i class="ph ph-film-strip" aria-hidden="true"></i><h3>媒体 smoke：视频是采样帧</h3><p>应用仓的 2026-08-27 聚合报告另行记录文图、音频、图音和视频帧四路通过；视频路径使用 8 个采样帧。模型来自平台预加载只读位置，metadata 为 <code>Revision:master</code>，设备报告名为 <code>Ascend910</code>，不能套用七月实验的固定 revision。</p></article>
+        <article class="module"><i class="ph ph-check-circle" aria-hidden="true"></i><h3>应用 E2E：公开图文请求</h3><p>该报告记录 LangGraph + MiniCPM-o 图文请求 HTTP 200、live 后端、1 个附件、5 条证据，以及请求级处理；同时明确 <code>lora_training_completed=false</code>。它支持这次历史联调通过，不替代当前窄服务或浏览器实时音视频验收。</p></article>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/reports/public/competition/minicpmo-live-evidence-2026-08-27.json#L5-L105" target="_blank" rel="noreferrer">独立日期的模型、四路 smoke 与应用 E2E 聚合证据</a></p>
+    </div></section>
+
+    <section class="section" id="service"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">NARROW SERVICE · CONTRACT BEFORE CONNECTIVITY</p><h2>窄服务要严格，兼容性要实查。</h2></div><p>相同端点名称，<br />不代表请求和健康协议相同。</p></div>
+      <div class="prose">
+        <h3>Training 服务只接受已声明的输入</h3>
+        <p><code>parse_generate_request</code> 要求 <code>content_policy=public_or_synthetic</code>，prompt 最多 4,000 字符；最多两个附件，单个解码后 2 MiB、合计 3 MiB；图片为 JPEG / PNG / WebP，音频仅 WAV，<code>max_new_tokens</code> 默认 128、上限 256。不接受文件路径、原文件名或身份字段，也不支持 video。图片经 BytesIO 转 RGB，音频转为 16 kHz 单声道；Base 从既有缓存加载，关闭 TTS，非流式返回，不提供训练端点。</p>
+        <h3>当前公开双仓契约不直接兼容</h3>
+        <p>应用客户端与 Training 窄服务虽然都使用 <code>/v1/omni/generate</code>，字段却没有对齐。严格服务会拒绝多余字段，应用也不会把服务的 <code>status=ready</code> 识别为就绪。修复需要显式版本化适配和契约测试，不能把它描述成已经完成的部署。</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="应用与 Training 服务的协议差异，可横向滚动"><table>
+        <caption>同一公开版本下的实际协议差异</caption>
+        <thead><tr><th scope="col">边界</th><th scope="col">应用 MiniCPMOClient</th><th scope="col">Training MiniCPMService</th></tr></thead>
+        <tbody>
+          <tr><td>生成参数</td><td>model、max_tokens、stream</td><td>max_new_tokens；拒绝上述额外字段</td></tr>
+          <tr><td>内容声明</td><td>应用入口检查，client 未转发</td><td>必须有 public_or_synthetic</td></tr>
+          <tr><td>附件 schema</td><td>asset_id、media_type、content_base64</td><td>仅 media_type、content_base64</td></tr>
+          <tr><td>健康响应</td><td>识别 ready=true 或 status=ok</td><td>返回 status=ready</td></tr>
+          <tr><td>默认媒体上限</td><td>4 个；每个 8 MiB</td><td>2 个；每个 2 MiB、总计 3 MiB</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout caution"><h3>请求级处理，不夸大为生产级保障</h3><p>Training 服务在内存解码媒体，不写请求内容；应用上传层则可能由框架短暂使用 multipart 临时文件，准确承诺是“不做应用持久化”。应用转发移除原文件名，使用内容哈希 ID，远端要求 HTTPS、host allowlist 并拒绝重定向。解码后媒体限额不等于完整 HTTP 请求体提前限流。Training README 明确：当前窄服务尚未完成新一轮云端 E2E。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/src/gradloop_npu/service.py#L17-L217" target="_blank" rel="noreferrer">严格请求、解码与健康端点</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/multimodal/minicpmo_client.py#L108-L154" target="_blank" rel="noreferrer">客户端 health / generate</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/docs/minicpmo-integration.md#L5-L13" target="_blank" rel="noreferrer">应用上传与留存边界</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/README.md#L125-L133" target="_blank" rel="noreferrer">新服务 E2E 状态</a></p>
+    </div></section>
+
+    <section class="section" id="documents"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">BROWSER DOCUMENT WORKER</p><h2>先本地读正文，再决定是否发送。</h2></div><p>文档解析、模型分析与 RAG 入库，<br />是三个不同动作。</p></div>
+      <ol class="flow-list">
+        <li><span>01</span><div><h3>本地 Worker 提取</h3><p>PDF.js 读取 PDF 文字层并保留页码；Word bundle 提取 DOCX 和 OLE DOC 正文。解析模块同源托管，不上传原文件或原文件名。扫描 PDF 没有文字层时明确要求先 OCR，不伪造识别结果。</p></div></li>
+        <li><span>02</span><div><h3>预览、限额与取消</h3><p>最多四份、每份 10 MiB、合计 20 MiB、PDF 50 页、合并正文 12,000 字符，超限不静默截断。DOCX 解压前检查容器条目、展开大小、加密与压缩比；单份解析 20 秒超时即终止 Worker。用户可编辑文本，重新选文件或编辑会撤销发送确认。</p></div></li>
+        <li><span>03</span><div><h3>单独确认 MAP 分析</h3><p>只有用户确认公开或合成内容并点击发送，正文和分析任务才进入 MAP 文字会话。文档内指令按不可信资料处理。成功状态要求非空文字回复和完成事件同时出现，45 秒超时或只有 done 不算成功；本次分析并非自动入 RAG。</p></div></li>
+      </ol>
+      <div class="callout caution"><p>2026-10-05 的公开状态为 <code>prepared_not_final</code>：代码及合成文件自动测试已完成，但该轮在线页面未更新、真实浏览器验收和 MAP 推理未验证。应用侧不持久化原文与结果，也不能替第三方模型服务承诺保留政策。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ui/documents/policy.mjs#L1-L63" target="_blank" rel="noreferrer">格式、大小与发送确认策略</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ui/documents/worker.mjs#L3-L41" target="_blank" rel="noreferrer">extractDocumentData</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ui/index.html#L1751-L1777" target="_blank" rel="noreferrer">文字输出与完成事件双条件</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/docs/document-mode.md#L3-L47" target="_blank" rel="noreferrer">发布状态与安全边界</a></p>
+    </div></section>
+
+    <section class="section" id="evaluation"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">HUMAN AGREEMENT &amp; NEXT ACCEPTANCE</p><h2>评测不止一个“通过”。</h2></div><p>工程连通、评分一致性和模型质量，<br />需要不同的证据。</p></div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="人工评分一致性指标及解释，可横向滚动"><table>
+        <caption>人工—人工评分一致性 · 2 名评分者 / 30 条公开合成案例</caption>
+        <thead><tr><th scope="col">观察维度</th><th scope="col">指标</th><th scope="col">结果</th><th scope="col">能说明什么</th></tr></thead>
+        <tbody>
+          <tr><td>绝对分差</td><td>总分 MAE / 10 分内比例</td><td>19.3333 / 0.2667</td><td>绝对评分尺度仍需校准</td></tr>
+          <tr><td>等级一致</td><td>三档一致率 / Cohen’s κ</td><td>0.6000 / 0.3182</td><td>不能只用原始一致率宣称高度一致</td></tr>
+          <tr><td>有序等级</td><td>QWK</td><td>0.5645</td><td>在有序量表上考虑分歧距离</td></tr>
+          <tr><td>线性关联</td><td>Pearson</td><td>0.7331</td><td>相对变化同向，不代表绝对分数接近</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose">
+        <h3>两名人工评分者，30 条五维评分</h3>
+        <p>human-v3 的公开聚合状态为 completed，记录两名独立人工评分者对 30 条公开合成案例的五维评分。总分 MAE 为 19.3333，10 分以内比例为 0.2667，三档一致率 0.6000，Cohen’s κ 为 0.3182，QWK 为 <strong>0.5645</strong>，Pearson 为 <strong>0.7331</strong>。相对排序有同向关系，但绝对评分尺度仍存在偏移，不能据此称“高度一致”，也不能把人工—人工量表一致性当作模型准确率。</p>
+        <p>公开报告保留 items / manifest 哈希和聚合指标，不公开逐题文本、逐题分数或评分者身份。它的价值在于先检查量表能否被人稳定使用，再讨论后续校准与模型比较，而不是用一项相关系数覆盖全部质量问题。</p>
+        <h3>下一次验收，应补齐哪些证据</h3>
+        <p>首先对齐双仓生成与健康 schema，增加跨仓契约测试，再在批准的云环境完成当前服务版本 E2E，记录输入范围、模型身份、失败恢复与资源指标。文档模式需补真实浏览器检查和公开文本 MAP 回包证据。若继续评估 LoRA 效果，应使用新预声明协议、更多可授权数据和独立冻结集，不能回到原五条 test 上反复调参。</p>
+        <p>这是一条后续验收路线，不是本页已经完成的运行结果。源码实现、自动测试、历史 smoke、冻结质量评测与当前部署状态需要各自报告；尤其不能把 RAGSDK 适配代码写成真实 runtime 已验证，或把合成案例指标写成真实用户准确率。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/reports/public/human_grading_annotation_status_v3.json#L2-L69" target="_blank" rel="noreferrer">human-v3 样本、身份隔离与聚合指标</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/docs/stage-b-npu-results-2026-07-29.md#L83-L89" target="_blank" rel="noreferrer">效果验证限制</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/README.md#L171-L175" target="_blank" rel="noreferrer">RAGSDK 真实运行边界</a></p>
+    </div></section>
+
+    <nav class="wrap chapter-pagination" aria-label="章节翻页">
+      <a href="agent.html"><small><i class="ph ph-arrow-left" aria-hidden="true"></i> 上一章 · 03 / 04</small><strong>Agent 工作流</strong></a>
+      <a href="index.html"><small>回到开篇 · 01 / 04 <i class="ph ph-arrow-right" aria-hidden="true"></i></small><strong>项目与架构</strong></a>
+    </nav>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer"><a href="../../">返回 Wednesday / Iroha-P 作品集</a><span>GradLoop RAGSDK Omni · 研循</span><a href="#top">回到顶部 <i class="ph ph-arrow-up" aria-hidden="true"></i></a></div></footer>
+  <script src="script.js"></script>
+</body>
+</html>

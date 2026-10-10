@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent 工作流 · GradLoop 研循</title>
+  <meta name="description" content="深入 GradLoop 的 LangGraph 状态图、规则路由、有限重试、人工确认、SQLite checkpoint 与学习闭环，理解 SSE、并发保护及公开评测的真实边界。" />
+  <meta name="theme-color" content="#fcfcf7" />
+  <link rel="icon" href="../../assets/gradloop/icon.png" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="technical-page agent-page">
+  <a class="skip-link" href="#main">跳到项目内容</a>
+  <header class="site-header" id="top">
+    <nav class="wrap navigation" aria-label="项目导航">
+      <a class="brand" href="index.html" aria-label="GradLoop 研循，返回项目概览"><img src="../../assets/gradloop/icon.png" width="38" height="38" alt="" /><strong>GradLoop · 研循</strong></a>
+      <button class="nav-toggle" type="button" aria-label="展开项目导航" aria-expanded="false" aria-controls="project-navigation" hidden><i class="ph ph-list" aria-hidden="true"></i><span>导航</span></button>
+      <div class="nav-links" id="project-navigation">
+        <a data-page-link href="index.html">项目与架构</a>
+        <a data-page-link href="rag.html">知识与 RAG</a>
+        <a data-page-link href="agent.html" aria-current="page">Agent 工作流</a>
+        <a data-page-link href="models.html">模型与评测</a>
+        <a class="github-link button primary" href="https://github.com/Iroha-P/gradloop-ragsdk-omni" target="_blank" rel="noreferrer">GitHub <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="page-hero" aria-labelledby="page-title"><div class="wrap page-hero-grid">
+      <div>
+        <p class="eyebrow">BOUNDED AGENT · STATEFUL LEARNING</p>
+        <h1 id="page-title">让学习动作<br />有状态，也有边界。</h1>
+        <p class="page-lead">GradLoop 用真实 LangGraph 状态图连接类型化工具，把重试、人工决策和恢复位置写进执行机制。这里沿源码拆解一次请求如何推进，以及计划、批改和错题如何跨请求组成闭环：哪些状态可以恢复，哪些副作用仍需谨慎，哪些指标只证明测试契约。</p>
+        <p class="page-meta">03 / 04 · PUBLIC SOURCE WALKTHROUGH</p>
+      </div>
+      <nav class="page-map" aria-label="本页目录">
+        <p>本页内容</p>
+        <a href="#routing"><span>01</span>规则路由与执行上限</a>
+        <a href="#state-graph"><span>02</span>真实十一节点图</a>
+        <a href="#checkpoint"><span>03</span>人工确认与恢复点</a>
+        <a href="#tools"><span>04</span>工具与幂等边界</a>
+        <a href="#learning-loop"><span>05</span>跨请求学习闭环</a>
+        <a href="#grading"><span>06</span>评分与掌握策略</a>
+        <a href="#runtime"><span>07</span>并发保护与 SSE</a>
+        <a href="#validation"><span>08</span>测试与证据分层</a>
+      </nav>
+    </div></section>
+
+    <section class="section" id="routing"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">01 / CONTROL FLOW</p><h2>先限定动作，再让流程推进。</h2></div><p>这里的 Agent 是有界业务编排，不是拥有任意工具的自主规划器。</p></div>
+      <div class="technical-grid">
+        <article class="module"><i class="ph ph-signpost" aria-hidden="true"></i><h3>七类意图，规则路由</h3><p>请求包含 user_id、可选 intent、message 与 payload。route_intent 优先使用明确 intent；未提供时按“计划、练习、批改、重答、错题、确认调整”等关键词分类，其余归入 ask。输入落到固定业务动作，而不是由模型临时创造执行路径。</p></article>
+        <article class="module"><i class="ph ph-arrows-clockwise" aria-hidden="true"></i><h3>一次检索重试，八步工具上限</h3><p>问答把“有非空引用且有非空回答”视为证据足够。否则进入 retry_search，追加固定查询词，并将 Top-K 扩大到最多 20；retry_count 达到 1 即结束。每次工具调用先检查 step_count，LangGraph 最多八步；它不是八个图节点的限制。</p></article>
+      </div>
+      <div class="prose"><p>显式 baseline 保留六步上限，和 LangGraph 共用 LearningTools、LearningService 与学习数据库。这样可以比较编排层的恢复和中断能力，不把更换底层题库或评分器造成的差异算成 Agent 收益。固定重试也容易审计，但不能称为 LLM 查询规划；“有引用”更不能直接证明回答语义正确。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/graph.py#L57-L87" target="_blank" rel="noreferrer">LearningAgent / _classify</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/langgraph_agent.py#L161-L241" target="_blank" rel="noreferrer">_call_tool / _search / _route_after_search</a>。</p>
+    </div></section>
+
+    <section class="section" id="state-graph"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">02 / THE ACTUAL GRAPH</p><h2>十一节点，不是一张概念图。</h2></div><p>按 _build_graph 的实际名称与边整理；START 和 END 是图边界，不计入十一节点。</p></div>
+      <figure class="system-figure" data-diagram="agent-routing" aria-labelledby="agent-routing-title">
+        <header class="figure-heading"><span class="figure-number">FIG. 03.1</span><h3 id="agent-routing-title">七个入口意图，选择一条业务分支</h3><p class="figure-subtitle">沿实际条件边展开；分支卡片代表路由关系，不代表七个动作同时执行。</p></header>
+        <div class="route-board">
+          <div class="route-entry"><span class="node-tag">START → ROUTE</span><strong>route_intent</strong><p>明确 intent 优先；否则按关键词分类，未匹配时进入 ask。</p></div>
+          <ul class="route-branches">
+            <li class="route-branch is-accent"><strong>ask · 问答</strong><code>search_knowledge</code><p>回答与引用均非空 → finalize；否则 → retry_search → finalize。最多重试一次，重试 Top-K 最多 20。</p></li>
+            <li class="route-branch"><strong>plan · 计划</strong><code>create_study_plan</code><p>生成并保存当前计划 → finalize；不会自动接着出题。</p></li>
+            <li class="route-branch"><strong>practice · 练习</strong><code>get_practice_questions</code><p>题库选择或结构化模板 → finalize；不替用户作答。</p></li>
+            <li class="route-branch is-caution"><strong>grade · 批改</strong><code>grade_answer</code><p>无 revision_id → finalize；有 revision_id → await_revision_decision，interrupt / resume 后 → finalize。</p></li>
+            <li class="route-branch"><strong>mistakes · 错题</strong><code>list_mistakes</code><p>查询当前用户的错题 → finalize。</p></li>
+            <li class="route-branch"><strong>redo · 重答</strong><code>redo_mistake</code><p>新作答更新原 mistake_id 的复习状态 → finalize。</p></li>
+            <li class="route-branch"><strong>revision · 调整</strong><code>decide_plan_revision</code><p>接收明确确认决定，处理已有提案 → finalize。</p></li>
+          </ul>
+          <div class="route-exit"><strong>finalize → END</strong><p>统一收束当前动作；下一轮学习由另一请求继续。</p></div>
+        </div>
+        <figcaption>实际图包含 11 个业务节点。START / END 不计入节点数；LangGraph 的八步限制计工具调用，不是图节点数量。蓝色标出有限检索重试，琥珀色标出可能等待人工决定的批改分支。</figcaption>
+      </figure>
+      <details class="graph-details"><summary>展开精确节点与条件边清单</summary>
+      <pre class="code-block" tabindex="0" role="region" aria-label="LangGraph 十一节点执行图，可横向滚动"><code>START → route_intent
+  ask      → search_knowledge
+                 ├─ 证据足够 → finalize
+                 └─ 证据不足 → retry_search → finalize
+  plan     → create_study_plan      → finalize
+  practice → get_practice_questions → finalize
+  grade    → grade_answer
+                 ├─ 无 revision_id → finalize
+                 └─ 有 revision_id → await_revision_decision
+                                        interrupt / resume
+                                        → finalize
+  mistakes → list_mistakes          → finalize
+  redo     → redo_mistake           → finalize
+  revision → decide_plan_revision   → finalize
+finalize → END</code></pre>
+      </details>
+      <div class="prose"><h3>业务动作与图节点分层</h3><p>grade_answer 内部调用业务服务，已经完成评分、错题保存和调整提案生成；图中没有单独的“质量检查”或“保存错题”节点。是否进入确认分支只检查 revision_id。避免把概念架构图中的阶段当成额外实现，可以准确解释哪些操作发生在同一次工具调用内。</p><h3>一次请求只走一个业务分支</h3><p>plan 不会自动继续出题，practice 也不会替用户作答。图负责当前动作，SQLite 负责连接不同请求的学习状态。由此保留用户参与和可检查的中间结果，而不是把完整学习过程藏进一轮长执行。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/langgraph_agent.py#L71-L126" target="_blank" rel="noreferrer">LangGraphLearningAgent._build_graph</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/langgraph_agent.py#L271-L291" target="_blank" rel="noreferrer">_grade_answer</a>。</p>
+    </div></section>
+
+    <section class="section" id="checkpoint"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">03 / INTERRUPT &amp; RECOVERY</p><h2>暂停的是执行，不是用户决定权。</h2></div><p>重要调整先形成提案；恢复点与运行原文分开存放。</p></div>
+      <figure class="system-figure" data-diagram="agent-confirmation" aria-labelledby="agent-confirmation-title">
+        <header class="figure-heading"><span class="figure-number">FIG. 03.2</span><h3 id="agent-confirmation-title">有提案，才进入人工确认分支</h3><p class="figure-subtitle">这条路径连接批改、暂停与恢复；没有 revision_id 的批改直接收束，不经过等待节点。</p></header>
+        <ol class="diagram-flow">
+          <li class="diagram-node"><span class="node-tag">GRADE</span><strong>批改形成提案</strong><small>grade_answer 完成业务保存<br />返回 revision_id 才进入此分支</small></li>
+          <li class="diagram-node is-caution"><span class="node-tag">INTERRUPT</span><strong>等待用户决定</strong><small>await_revision_decision<br />状态：waiting_for_confirmation</small></li>
+          <li class="diagram-node is-caution"><span class="node-tag">USER DECISION</span><strong>接受 / 拒绝</strong><small>用户提交 confirm<br />提案本身不静默改变计划</small></li>
+          <li class="diagram-node is-accent"><span class="node-tag">RESUME → FINALIZE</span><strong>恢复并收束</strong><small>接受：更新计划任务<br />拒绝：仅更新提案状态</small></li>
+        </ol>
+        <div class="diagram-note">恢复位置：trace_id 映射 thread_id → SQLite checkpoint；先核对用户摘要归属，再接收决定。故障恢复与人工确认不同，前者还需要重新提交原请求。</div>
+        <figcaption>图中“用户决定”是外部输入，不是新增 LangGraph 节点。Checkpoint 只保存脱敏执行摘要；学习数据库仍会保存脱敏作答与业务记录，不承诺所有副作用 exactly-once。</figcaption>
+      </figure>
+      <div class="prose"><h3>interrupt：先等确认，再写计划</h3><p>批改生成 revision_id 后，await_revision_decision 用 interrupt 返回动作类型、trace_id 和提案 ID。运行状态变为 waiting_for_confirmation。用户调用 resume 提交 confirm，图通过 Command(resume=…) 继续；接受才替换计划任务，拒绝只更新提案状态，不静默改变学习安排。</p><h3>thread_id 就是 trace_id</h3><p>每次运行使用 trace_id 作为公开运行标识，也将它映射到 LangGraph 的 configurable.thread_id；没有另一套独立 run_id。状态查询和恢复先核对用户摘要归属。人工中断只需确认决定；故障恢复需要重新提交原请求，因为恢复点不保存它。</p></div>
+      <dl class="fact-grid">
+        <div><dt>持久化执行状态</dt><dd>意图、scope、当前节点、步骤与重试计数、revision_id、pending_action、恢复计数和错误类型。</dd></div>
+        <div><dt>摘要而非正文</dt><dd>用户 ID 散列；输入键名、文本长度和摘要散列；输出对象 ID、分数与列表数量。</dd></div>
+        <div><dt>只在当前运行传递</dt><dd>AgentRunContext 接收原请求、结果容器和工具轨迹，不作为图 state 写入 checkpoint。</dd></div>
+      </dl>
+      <div class="callout caution"><h3>不进 checkpoint，不等于不落地</h3><p>SqliteSaver 保存恢复点，学习数据库则保存脱敏后的作答、评分和错题。两者职责不同。get_status 返回执行位置而非原回答归档；这套用户归属核对也不应被包装为完整的身份认证系统。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/state.py#L53-L116" target="_blank" rel="noreferrer">AgentGraphState / build_checkpoint_seed</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/langgraph_agent.py#L335-L377" target="_blank" rel="noreferrer">interrupt / thread_id 映射</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/langgraph_agent.py#L508-L601" target="_blank" rel="noreferrer">resume / get_status</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/storage/sqlite.py#L238-L254" target="_blank" rel="noreferrer">save_attempt</a>。</p>
+    </div></section>
+
+    <section class="section" id="tools"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">04 / TYPED TOOLS</p><h2>固定工具，明确副作用。</h2></div><p>工具不暴露任意文件操作或 shell；业务输入通过 Pydantic 模型校验。</p></div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="七个固定工具的业务读写边界，可横向滚动"><table>
+        <caption>LearningTools 的七个工具及其业务读写边界</caption>
+        <thead><tr><th scope="col">工具</th><th scope="col">输入与作用</th><th scope="col">业务状态变化</th></tr></thead>
+        <tbody>
+          <tr><td>search_knowledge</td><td>问题、Top-K、scope；默认 generic</td><td>检索与回答；编排层另记摘要轨迹</td></tr>
+          <tr><td>create_study_plan</td><td>目标、期限、时长、弱项</td><td>保存计划与用户画像</td></tr>
+          <tr><td>get_practice_questions</td><td>主题、难度、数量、scope</td><td>检索题库或生成模板题，保存题目</td></tr>
+          <tr><td>grade_answer</td><td>题目 ID、用户作答</td><td>保存作答；低分可写错题、弱项和提案</td></tr>
+          <tr><td>list_mistakes</td><td>用户、状态、主题、数量</td><td>查询该用户错题</td></tr>
+          <tr><td>redo_mistake</td><td>错题 ID、题目 ID、新作答</td><td>保存新作答，更新原错题</td></tr>
+          <tr><td>decide_plan_revision</td><td>提案 ID、确认决定</td><td>更新提案；接受时更新计划</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose"><h3>用户与能力边界分别处理</h3><p>工具 wrapper 用当前请求的 user_id 覆盖 payload 中同名值，再交给业务模型。数据库按用户核对对象归属。没有任意执行工具能够缩小操作面，但底层服务仍会读写 SQLite，不能把“无 shell 工具”称作完整安全沙箱。</p><h3>局部幂等，不承诺全部 exactly-once</h3><p>题目 INSERT OR IGNORE，计划、错题和提案按对象 ID upsert，轨迹以 trace_id 与 sequence 为主键；已处理的 revision 再提交不会重新应用。但 grade 每次新建作答 UUID，多个保存调用与 checkpoint 不在同一个原子事务。节点恢复有助于减少重复执行，仍不能证明崩溃窗口下所有副作用恰好一次。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/tools.py#L13-L72" target="_blank" rel="noreferrer">LearningTools</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/storage/sqlite.py#L171-L280" target="_blank" rel="noreferrer">对象保存与用户归属</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/storage/sqlite.py#L325-L392" target="_blank" rel="noreferrer">提案与轨迹主键</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L840-L868" target="_blank" rel="noreferrer">decide_revision</a>。</p>
+    </div></section>
+
+    <section class="section" id="learning-loop"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">05 / ACROSS REQUESTS</p><h2>学习闭环，靠状态连接。</h2></div><p>一份计划、一组题目、一次作答和原错题 ID，构成能够追踪的跨请求关系。</p></div>
+      <ol class="flow-list">
+        <li><span>01</span><div><h3>7 / 14 / 30 天：时间预算先于排课</h3><p>计划从每周时长折算总分钟，按轻量、平衡或强化系数分配，围绕弱项轮换诊断、精读、练习和模拟。任务包含期限、分钟数、来源与产出物；校验总时长、截止日期和最后一天复盘。这是可检查的规则模板，不是已证明最优的学习策略。</p></div></li>
+        <li><span>02</span><div><h3>出题：题库优先，证据不足就停下</h3><p>先按主题、方向、难度和 scope 选择派生题库。无匹配时检索资料，以带来源 ID 与 chunk ID 的结构化模板生成练习；检索为空则返回空题集与警告。模板不会被称为自由生成、已通过事实校验的完整题库。</p></div></li>
+        <li><span>03</span><div><h3>反馈：错题与计划提案分开</h3><p>低分保存错题并累积弱项；存在可替换的待办任务时，生成补强提案，保留复习与模拟任务。提案本身不会改变计划，用户确认后才应用。后续重答继续更新同一错题，使版本与复习状态可以追踪。</p></div></li>
+      </ol>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/domain/plans.py#L30-L40" target="_blank" rel="noreferrer">StudyPlanRequest.days</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L218-L331" target="_blank" rel="noreferrer">create_plan / _validate_plan</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L355-L460" target="_blank" rel="noreferrer">get_questions</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L725-L755" target="_blank" rel="noreferrer">_propose_revision</a>。</p>
+    </div></section>
+
+    <section class="section" id="grading"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">06 / GRADING POLICY</p><h2>分数要解释，掌握要复习。</h2></div><p>规则评分负责当前决策，LLM 负责旁路复核，两者的职责不混写。</p></div>
+      <div class="technical-grid">
+        <article class="module"><i class="ph ph-list-checks" aria-hidden="true"></i><h3>五维确定性基线</h3><p>默认量表分为清晰度、覆盖、推理、证据和反思。实现使用回答长度与表达信号，而非完整语义判断；低于 80 分进入错题链。它可复现，但存在关键词投机和尺度偏差风险，不能把规则高分等同于事实正确。</p></article>
+        <article class="module"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><h3>LLM 旁路：严格结构，保留分差</h3><p>可选复核要求 JSON schema、维度集合完整、无重复且不超单维满分，结构失败后最多重试一次。输出包含 score_delta、理由、改写与置信度；不可用时保留基线。校准前模型分不参与错题、掌握或计划决策，confidence 也不是回答正确率。</p></article>
+      </div>
+      <div class="prose"><h3>80 分、连续两次、1 / 3 / 14 天</h3><p>首次错题默认两天后复习。重答低于 80 分时连续通过计数清零，回到 open，一天后再答；首次达标进入 reviewing，三天后重答；连续两次达标进入 mastered，十四天后保持性复习。每次增加 answer_version 和 redo_count，沿用原 mistake_id。“已掌握”只是应用内规则状态，不能推断真实认知提升。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L522-L676" target="_blank" rel="noreferrer">grade / _score_dimensions</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/llm_grading.py#L98-L185" target="_blank" rel="noreferrer">StructuredLlmGrader.review</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L696-L723" target="_blank" rel="noreferrer">首次复习日期</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L757-L838" target="_blank" rel="noreferrer">redo_mistake</a>。</p>
+    </div></section>
+
+    <section class="section" id="runtime"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">07 / API &amp; OBSERVABILITY</p><h2>进度真实增量，容量明确拒绝。</h2></div><p>可靠性不仅是正常返回，还包括忙时行为、错误信息和资源释放。</p></div>
+      <div class="prose"><h3>共享门控与 429</h3><p>FastAPI 的 ask、Agent 同步执行、恢复与 SSE 共用 ExpensiveOperationGate。BoundedSemaphore 非阻塞获取，默认两路；满额立即返回 429 capacity_exhausted，附 Retry-After、request_id 和 trace_id。它是进程内并发保护，不是跨 worker 分布式限流，也不是线上吞吐测量。</p><h3>start / node / tool / done / error</h3><p>SSE 直接消费 graph.stream(stream_mode="updates")，节点推进时发 node，工具完成时发名称、序号与状态，最后给出完成或等待确认状态。它没有先同步执行再回放，也不是模型 token 流；事件不携带答案正文。HTTP 错误与图异常仅暴露安全码或异常类型，便于关联问题而不回传原片段。</p><h3>释放配额，不等于取消推理</h3><p>流生成器的 finally 释放门控；公开后端没有 Agent cancel 端点或贯穿图与模型的取消令牌。因此只能说明流结束后的清理机制，不能承诺断线会立即终止在途同步调用。失败后的状态查询与恢复也不等于自动重连或自动继续。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/core/concurrency.py#L10-L36" target="_blank" rel="noreferrer">ExpensiveOperationGate</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/api/main.py#L73-L185" target="_blank" rel="noreferrer">请求关联与错误处理</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/api/main.py#L452-L494" target="_blank" rel="noreferrer">Agent API / SSE finally</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/agent/langgraph_agent.py#L454-L506" target="_blank" rel="noreferrer">真实 graph.stream 事件</a>。</p>
+    </div></section>
+
+    <section class="section" id="validation"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">08 / EVIDENCE LEVELS</p><h2>测了什么，比数字更重要。</h2></div><p>应用执行、合成工具编排和 fixture 一致性，是三种不同证据。</p></div>
+      <div class="prose"><h3>集成测试覆盖真实业务调用</h3><p>公开测试使用临时 SQLite 与 BM25 合成片段，覆盖计划、出题、低分批改、确认提案和错题记录；还检查 interrupt 后查询 next_nodes、resume 完成、其他用户访问返回 403，以及重答保持同一错题 ID。本页是源码讲解，没有重新运行这些测试，不将测试存在写成此次执行通过。</p><h3>工作流 evaluator 与 108 条组合报告</h3><p>evaluate_agent_cases 确实创建 LangGraph，配合合成工具和故障注入，检查工具顺序、中断、恢复、重复调用及 checkpoint canary 泄露；范围限定 workflow_only_public_synthetic。另一份 108 条公开组合报告中，Agent、计划与批改属于 fixture_consistency，只比对确定性契约，不执行应用 Agent。其 1.0 不能表述为真实 Agent 成功率。</p><h3>历史验收不等于当前在线能力</h3><p>2026-07-23 的 CPU Docker 聚合报告记录了 BM25 + LangGraph + SQLite 与 SSE 链路通过，未调用语言模型。公开网页的学习模块则使用合成回放，不连接这里的真实学习数据库。页面所有实现依据固定公开 SHA；本地开发分支、历史运行证据与在线部署状态分别陈述。</p></div>
+      <div class="callout"><p>下一章进入模型与评测：理解模型协议、历史 Ascend 实验和人工评分证据，为什么不能由“运行成功”直接推导“质量提升”。</p></div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/tests/integration/test_api_learning_loop.py#L43-L234" target="_blank" rel="noreferrer">业务闭环 / interrupt / 重答测试</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/evaluation/agent.py#L150-L275" target="_blank" rel="noreferrer">evaluate_agent_cases</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/evaluation/public_portfolio.py#L566-L607" target="_blank" rel="noreferrer">fixture_consistency 边界</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/reports/public/docker_cpu_baseline_validation_v1.json#L1-L65" target="_blank" rel="noreferrer">历史 CPU / SSE 验收</a>、<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/README.md#L41-L53" target="_blank" rel="noreferrer">公开 Demo 回放范围</a>。</p>
+    </div></section>
+
+    <nav class="chapter-pagination wrap" aria-label="章节翻页">
+      <a href="rag.html"><small><i class="ph ph-arrow-left" aria-hidden="true"></i> 上一章 · 02 / 04</small><strong>知识与 RAG</strong></a>
+      <a href="models.html"><small>下一章 · 04 / 04 <i class="ph ph-arrow-right" aria-hidden="true"></i></small><strong>模型与评测</strong></a>
+    </nav>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer"><a href="../../">返回 Wednesday / Iroha-P 作品集</a><span>GradLoop RAGSDK Omni · 研循</span><a href="#top">回到顶部 <i class="ph ph-arrow-up" aria-hidden="true"></i></a></div></footer>
+  <script src="script.js"></script>
+</body>
+</html>
