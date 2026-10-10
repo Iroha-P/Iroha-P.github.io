@@ -28,7 +28,16 @@ node --test tests/*.test.cjs
 
 ## 发布与内容维护
 
-GradLoop 的独立项目页位于 `projects/gradloop/`，使用原始品牌标志、真实公开合成界面与独立背景素材；与功能 Demo 和模型实验仓分开。主页提供详情入口，不在作品集启动模型或存储上传资料。
+GradLoop 的独立介绍位于 `projects/gradloop/`，共四个原生可跳转页面，共享 CSS 与导航脚本：
+
+- [项目与架构](projects/gradloop/index.html)：产品定位、六层职责与技术章节入口。
+- [知识与 RAG](projects/gradloop/rag.html)：数据契约、摄取、隐私分区、题库、BM25 / 门控与 RAGSDK 适配。
+- [Agent 工作流](projects/gradloop/agent.html)：真实状态图、固定工具、人工中断、checkpoint、学习状态与 SSE。
+- [模型与评测](projects/gradloop/models.html)：来源关联划分、Ascend Base / LoRA、协议差异、文档 Worker 与人工双评。
+
+采用原始品牌标志、真实公开合成界面和独立蓝绿色调，借鉴既有项目页的排版与阅读节奏，不复制其他项目的素材。技术事实链接锁定应用公开提交 `ad9aafdd79e4e7fbbd4fc6984e507c282eec62db` 与 Training 公开提交 `0364c69f5a9116f927932867dc22d370bb696a87`；历史实验、fixture 与待验收项分别标明。主页保留详情入口；作品集不启动模型、不上传资料，与功能 Demo 和模型实验仓独立。
+
+四页包含 7 幅可访问的原生图示：问答架构、隐私摄取、检索后端、七意图路由、人工中断恢复、来源组件划分与 Base / LoRA 冻结比较；配合能力边界、门控和人工双评表格。流程图是静态 HTML/CSS，不依赖绘图库；比较图保留零值与无提升结论，不把示意图当作实机截图。手机自动纵向排列，表格支持键盘横向滚动，精确节点清单可展开。
 
 使用当前 GitHub Pages 配置发布，不引入新托管平台。内容变更先走独立分支；合入 Pages 配置的发布分支后才会改变线上主页。
 

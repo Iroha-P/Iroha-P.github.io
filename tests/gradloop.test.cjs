@@ -12,7 +12,7 @@ test('GradLoop has an independent static project page with its verified full nam
   assert.ok(fs.existsSync(pagePath));
   const html = readPage();
   assert.match(html, /<title>GradLoop RAGSDK Omni/);
-  assert.match(html, /<h1[^>]*>[\s\S]*?GradLoop[\s\S]*?RAGSDK Omni[\s\S]*?<\/h1>/);
+  assert.match(html, /<h1[^>]*>[\s\S]*?GradLoop[\s\S]*?研循[\s\S]*?<\/h1>/);
   assert.match(html, /证据约束的全模态学习与面试训练 Agent/);
   assert.match(html, /lang="zh-CN"/);
 });
@@ -73,6 +73,21 @@ test('the page adds no backend, analytics, model calls or fabricated decorative 
   assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|WebSocket|localStorage|sessionStorage|innerHTML|document\.cookie/);
   assert.doesNotMatch(readPage(), /<svg\b|<canvas\b|data:image/);
   assert.doesNotMatch(css, /(?:linear|radial|conic)-gradient\(/);
-  assert.match(css, /hero-paper\.png/);
   assert.match(css, /prefers-reduced-motion/);
+});
+
+test('the redesign keeps the project family layout with a distinct GradLoop blue accent', () => {
+  const html = readPage();
+  const css = fs.readFileSync(path.join(pageRoot, 'styles.css'), 'utf8');
+  assert.match(css, /--paper:\s*#fcfcf7/);
+  assert.match(css, /--mint:\s*#24688e/);
+  assert.match(css, /min\(1180px,\s*calc\(100% - 36px\)\)/);
+  assert.match(css, /\.site-header\s*\{[^}]*position:\s*sticky/);
+  assert.match(html, /class="product-stage"/);
+  assert.match(html, /class="stage-head"/);
+  assert.match(html, /class="stage-grid"/);
+  assert.match(html, /class="hero-art"[^>]+aria-hidden="true"/);
+  assert.equal((html.match(/class="feature-card"/g) || []).length, 3);
+  assert.doesNotMatch(css, /hero-paper\.png/);
+  assert.doesNotMatch(html, /class="loop-strip"/);
 });

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>知识与 RAG · GradLoop 研循</title>
+  <meta name="description" content="深入 GradLoop 的知识核心：统一数据契约、隐私摄取、generic/personal 分区、证据绑定题库、BM25 与可选门控、RAGSDK 四路适配及公开合成评测边界。" />
+  <meta name="theme-color" content="#fcfcf7" />
+  <link rel="icon" href="../../assets/gradloop/icon.png" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="technical-page rag-page">
+  <a class="skip-link" href="#main">跳到知识与 RAG 内容</a>
+  <header class="site-header" id="top">
+    <nav class="wrap navigation" aria-label="项目导航">
+      <a class="brand" href="index.html" aria-label="GradLoop 研循，返回项目概览"><img src="../../assets/gradloop/icon.png" width="38" height="38" alt="" /><strong>GradLoop · 研循</strong></a>
+      <button class="nav-toggle" type="button" aria-label="展开项目导航" aria-expanded="false" aria-controls="project-navigation" hidden><i class="ph ph-list" aria-hidden="true"></i><span>导航</span></button>
+      <div class="nav-links" id="project-navigation">
+        <a data-page-link href="index.html">项目与架构</a>
+        <a data-page-link href="rag.html" aria-current="page">知识与 RAG</a>
+        <a data-page-link href="agent.html">Agent 工作流</a>
+        <a data-page-link href="models.html">模型与评测</a>
+        <a class="github-link button primary" href="https://github.com/Iroha-P/gradloop-ragsdk-omni" target="_blank" rel="noreferrer">GitHub <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="page-hero" aria-labelledby="page-title">
+      <div class="wrap page-hero-grid">
+        <div>
+          <p class="eyebrow">KNOWLEDGE &amp; EVIDENCE</p>
+          <h1 id="page-title">让材料成为证据，<br />让检索保持可解释。</h1>
+          <p class="page-lead">知识库不是把文件交给模型就结束。GradLoop 先检查来源与隐私，再保留分块、分区和引用身份，最后连接可替换的检索后端。这里沿公开源码解释材料如何进入问答与题库，也说明召回、拒答和生成验证之间尚未闭合的边界。</p>
+          <p class="page-meta">02 / 04 · PUBLIC SOURCE WALKTHROUGH</p>
+        </div>
+        <nav class="page-map" aria-label="本页目录">
+          <p>本页内容</p>
+          <a href="#contracts"><span>01</span>统一数据契约</a>
+          <a href="#ingestion"><span>02</span>摄取与隐私门禁</a>
+          <a href="#partitions"><span>03</span>分区与只读快照</a>
+          <a href="#questions"><span>04</span>证据派生题库</a>
+          <a href="#ranking"><span>05</span>BM25 与证据门控</a>
+          <a href="#adapters"><span>06</span>RAGSDK 四路适配</a>
+          <a href="#evaluation"><span>07</span>公开评测与限制</a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="section" id="contracts"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">01 / DATA CONTRACT</p><h2>先统一证据身份，再替换检索实现。</h2></div><p>同一份业务请求可以切换后端；<br />结果仍要说明资料来自哪里。</p></div>
+      <div class="prose">
+        <h3>输入不是裸文本，而是带定位的知识片段</h3>
+        <p><code>DocumentInput</code> 为每个片段保存 <code>source_id</code>、<code>chunk_id</code> 与正文，并携带标题、章节、页码、发布日期、权威级别和 metadata。Pydantic 合约禁止额外字段，避免接口悄悄接受拼错或未约定的数据；页码与日期允许为空，所以“可以追溯”不等于“每份来源都有完整日期”。</p>
+        <h3>检索、回答和生成身份分开表达</h3>
+        <p><code>RetrievalRequest</code> 默认 Top-K 为 5、scope 为 generic；结果保留候选正文、分数、检索类型以及分阶段耗时。<code>AnswerResult</code> 再补充引用、拒答状态和 warnings，并把检索 backend/version 与生成 backend/model、<code>llm_called</code> 分开。这样 BM25 命中资料与模型生成回答不会共用一个含糊的“成功”标签。</p>
+      </div>
+      <pre class="code-block" tabindex="0" role="region" aria-label="统一证据契约示意，可横向滚动"><code>DocumentInput → index / delete / retrieve / answer
+RetrievalResult → documents + backend + trace_id + stages
+AnswerResult → answer + citations + abstained
+             + generation_backend + generator_model + llm_called</code></pre>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/base.py#L10-L109" target="_blank" rel="noreferrer">base.py · 数据模型</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/base.py#L127-L139" target="_blank" rel="noreferrer">RagBackend · 六个统一入口</a></p>
+    </div></section>
+
+    <section class="section" id="ingestion"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">02 / PRIVACY-GATED INGESTION</p><h2>摄取的第一步，是决定什么不能进入。</h2></div><p>先授权与检查，后解析与分块。<br />原始材料不直接成为检索输入。</p></div>
+      <figure class="system-figure" data-diagram="rag-ingestion" aria-labelledby="rag-ingestion-title">
+        <header class="figure-heading"><span class="figure-number">FIG. 02.1</span><h3 id="rag-ingestion-title">从授权材料到可追溯证据</h3><p class="figure-subtitle">路径校验 → 内容提取 → 隐私决策 → 脱敏分块；未放行的材料停在入库之前。</p></header>
+        <ol class="diagram-flow">
+          <li class="diagram-node"><span class="node-tag">01 / AUTHORIZE</span><strong>检查来源</strong><small>授权根目录内的 MD / TXT / PDF / DOCX<br />默认不超过 50 MiB</small></li>
+          <li class="diagram-node"><span class="node-tag">02 / EXTRACT</span><strong>保留结构</strong><small>提取正文、章节与页码<br />PDF 只读取文字层，不自动 OCR</small></li>
+          <li class="diagram-node is-caution"><span class="node-tag">03 / PRIVACY GATE</span><strong>决定是否继续</strong><small>规则扫描与声明取较高敏感度<br />拒绝或等待确认时不进入分块</small></li>
+          <li class="diagram-node is-accent"><span class="node-tag">04 / BUILD EVIDENCE</span><strong>脱敏后生成片段</strong><small>800 字符 / 120 重叠<br />稳定 chunk_id + 来源 Manifest</small></li>
+        </ol>
+        <div class="diagram-note">入库分支：放行 → 脱敏分块；待确认分支：保存脱敏预览 → 等待决定；拒绝分支：记录状态 → 停止。</div>
+        <figcaption>图示只表达源码中的摄取顺序。隐私扫描属于规则门禁，不是完整个人信息识别；单文件原子写入不等于整条管线具备多文件事务。</figcaption>
+      </figure>
+      <ol class="flow-list">
+        <li><span>01</span><div><h3>校验来源路径与格式</h3><p><code>authorize_file</code> 拒绝越出授权根目录、路径穿越、UNC/device 路径及直接符号链接；默认只接收不超过 50 MiB 的 MD、TXT、PDF、DOCX，并检查 PDF 签名与 DOCX 容器必需成员。扩展名不是唯一通行证。</p></div></li>
+        <li><span>02</span><div><h3>扫描敏感度，再决定确认或拒绝</h3><p>规则扫描联系方式、身份字段、secret、风险路径词及部分提示注入表达，取声明与扫描中的较高敏感度。高敏默认拒绝，中敏或可疑注入进入脱敏预览与确认；公开摄取模式只接受 public 且没有注入标记的内容。这是规则式闸门，不宣称识别所有个人信息。</p></div></li>
+        <li><span>03</span><div><h3>脱敏后生成稳定片段</h3><p>默认按 800 字符、120 字符重叠切分，优先句号或换行；同次构建按正文 SHA-256 去重。chunk_id 结合来源、源文件哈希、位置、正文和分块版本生成，保留章节与页码，便于判断内容或解析策略发生了什么变化。</p></div></li>
+      </ol>
+      <div class="prose">
+        <h3>结构信息与构建版本一并保存</h3>
+        <p>Markdown 标题成为章节，DOCX 提取段落与表格，PDF 只读取文字层并保留页码，不自动 OCR。Manifest 记录 checksum、parser/chunker 版本、隐私摘要和摄取状态；只有这些版本与文件内容均未变化且旧状态已入库，才复用旧分块。单文件写入采用临时文件、fsync 与原子替换，但这本身不是整个摄取过程的多文件事务。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ingestion/security.py#L53-L109" target="_blank" rel="noreferrer">authorize_file</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ingestion/privacy.py#L54-L145" target="_blank" rel="noreferrer">scan_privacy / decide_ingestion</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ingestion/chunking.py#L9-L83" target="_blank" rel="noreferrer">build_chunks</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ingestion/pipeline.py#L117-L243" target="_blank" rel="noreferrer">IngestionPipeline.ingest</a></p>
+    </div></section>
+
+    <section class="section" id="partitions"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">03 / SCOPED KNOWLEDGE</p><h2>通用知识与个人叙事，不默认混检。</h2></div><p>分区约束进入数据文件与检索过程，<br />而不只写在提示词里。</p></div>
+      <div class="technical-grid">
+        <article class="module"><i class="ph ph-books" aria-hidden="true"></i><h3>generic / personal / all</h3><p>派生语料按 generic 与 personal 物理分文件。加载时校验每个文件的 privacy_lane，并检查跨文件 chunk_id 唯一；查询默认 generic，只有显式 all 才跨分区。BM25 先确定可检索文档，再计算该分区的词频统计与平均长度，个人语料不会参与通用查询的排序统计。</p></article>
+        <article class="module"><i class="ph ph-git-branch" aria-hidden="true"></i><h3>飞书只读快照，而非远端写入</h3><p>客户端仅允许认证状态、空间列表、节点列表和 Docx fetch，并验证用户身份与只读权限。同步遍历全部节点，在 staging 生成完整 inventory；重复节点、读取失败或隐私拒绝会中止发布，通过后才替换 current，替换异常可恢复旧快照。</p></article>
+      </div>
+      <div class="prose">
+        <h3>匿名来源 ID，不等于删除全部远端身份</h3>
+        <p>飞书来源 ID 由 node token 哈希生成，未知目录保守归入 personal；本地快照仍需保存 revision、远端 token 和节点路径来维护同步关系，不能把“匿名 ID”说成完全没有敏感元数据。公开仓提供同步代码与合成资料，不包含用户运行快照；公开启动器还会覆盖语料和状态路径，隔离已有个人索引。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/scoped_corpus.py#L9-L26" target="_blank" rel="noreferrer">load_scoped_corpus</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ingestion/feishu_snapshot.py#L39-L107" target="_blank" rel="noreferrer">SnapshotManifest / lane / 原子发布</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/ingestion/feishu_snapshot.py#L146-L229" target="_blank" rel="noreferrer">SnapshotSyncService.sync</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/integrations/feishu/client.py#L149-L181" target="_blank" rel="noreferrer">只读命令与认证校验</a></p>
+    </div></section>
+
+    <section class="section" id="questions"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">04 / EVIDENCE-DERIVED PRACTICE</p><h2>题目从证据派生，不靠模型自由补答案。</h2></div><p>抽取、归并与复核分别记录，<br />不把缺失信息伪装成完整题库。</p></div>
+      <div class="prose">
+        <h3>规则抽取候选，来源引用跟随题目</h3>
+        <p>抽取器识别 Markdown 问答表、编号题、问号与问题语境，把候选题干和相邻答案证据绑定到 source_id、章节、页码和 revision。没有答案证据的题目标记 needs_answer，而不是让模型补一个“看起来合理”的答案。最终 QuestionRecord 保留 source_refs、内容指纹、重复组、隐私 lane 与审核状态。</p>
+        <h3>先精确归并，再谨慎处理近似题</h3>
+        <p>精确去重按 lane 与规范化题干分组，跨分区不合并。近似候选使用字符 3-gram 与 2-gram Jaccard，达到 0.82 / 0.75 才进入复核；配置模型复核时，只有语义等价且置信度不低于 0.85 才合并。答案证据版本不同会保留 conflict；数据集可按 duplicate_group 划分，避免同一组题同时进入开发与测试。</p>
+        <h3>LLM 输出可拒绝，发布前再校验一次</h3>
+        <p>辅助分类要求严格 JSON，最多尝试两次；answer_points 与 evidence_quotes 必须逐字存在于输入证据，否则退回 needs_review。字符串包含检查不能证明推理正确，但能限制越界改写。题库先在 staging 写入题目、冲突、覆盖统计与分区语料，全部合约通过后整体切换；API 默认只选 accepted 题目。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/question_bank/extractor.py#L33-L64" target="_blank" rel="noreferrer">_make_candidate</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/question_bank/dedupe.py#L69-L235" target="_blank" rel="noreferrer">canonicalize_questions / 按组划分</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/question_bank/llm_enrichment.py#L38-L75" target="_blank" rel="noreferrer">QuestionEnricher.enrich</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/question_bank/build.py#L333-L374" target="_blank" rel="noreferrer">QuestionBankBuilder._publish</a></p>
+    </div></section>
+
+    <section class="section" id="ranking"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">05 / RANKING &amp; BOUNDARY GATES</p><h2>命中相似词，不代表问题已有答案。</h2></div><p>排序解决“先看什么”，<br />证据门控解决“是否继续生成”。</p></div>
+      <div class="prose">
+        <h3>无模型 BM25：透明的对照基线</h3>
+        <p>基线索引标题、章节与正文；英文数字按正则分词，中文加入单字、相邻双字及短整串。使用 k1=1.5、b=0.75，保留正分候选，按分数降序与 chunk_id 稳定排序后截 Top-K。默认 answer 只在没有命中时拒答；有命中就展示原片段，并明确没有调用大模型。因此它是词法与工程对照，不是语义回答器。</p>
+        <h3>Top-1 与 Composite：显式选择的实验策略</h3>
+        <p>Top-1 Gate 启用后比较首条分数与阈值，无文档或低于阈值就拒答，并在 LLM 调用前结束。Composite 再利用 Top1/Top2、归一化 margin、单文档与 Top5 联合覆盖、数字和英文 anchor 覆盖；协议限定 baseline/bm25-v1/Top-5，候选不足两条、分数无效或次序异常时保守拒绝。组合阈值需要同时满足覆盖和 Top1 条件，再由 margin 或高覆盖 override 放行。</p>
+        <h3>生成前约束与生成后验证，是两件事</h3>
+        <p>配置 LLM 时，LearningService 将最多约 12,000 字符上下文标为 [S1] 等来源，提示模型只依据资料，再附上传入上下文的引用元数据。当前实现直接返回 generated.content，没有逐句引用核验或语义蕴含检查；引用列表不能证明每条回答均被资料支持，日期字段也不自动构成时效判断。</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="默认回答与可选证据门控的决策差异，可横向滚动"><table>
+        <caption>三种决策策略：默认行为与实验能力分别陈述</caption>
+        <thead><tr><th scope="col">策略</th><th scope="col">何时拒绝继续</th><th scope="col">默认运行时状态</th></tr></thead>
+        <tbody>
+          <tr><td>BM25 基线回答</td><td>没有检索命中；有命中时展示原片段</td><td>基线支持；不调用大模型</td></tr>
+          <tr><td>Top-1 Gate</td><td>没有文档，或首条分数低于配置阈值</td><td>可选策略；未接入默认装配</td></tr>
+          <tr><td>Composite Gate</td><td>候选或分数异常，或覆盖、Top1 与 margin 条件不足</td><td>实验策略；限定 BM25 / Top-5 协议</td></tr>
+        </tbody>
+      </table></div>
+      <aside class="callout caution"><h3>门控未接入默认运行时</h3><p>EvidenceGatePolicy 默认 disabled；build_runtime 创建 LearningService 时没有传入 evidence_gate_policy。可选门控与实验代码已经存在，但不能写成默认产品已部署，也不能把检索高召回当作可靠拒答的证据。</p></aside>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/bm25_baseline.py#L25-L153" target="_blank" rel="noreferrer">tokenize / Bm25BaselineBackend.retrieve</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/evidence_gate.py#L23-L65" target="_blank" rel="noreferrer">Top-1 Gate</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/boundary_gate.py#L124-L275" target="_blank" rel="noreferrer">Composite 特征与决策</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/services/learning.py#L124-L205" target="_blank" rel="noreferrer">LearningService.ask</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/core/runtime.py#L87-L98" target="_blank" rel="noreferrer">默认服务装配</a></p>
+    </div></section>
+
+    <section class="section" id="adapters"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">06 / EXPLICIT RAGSDK ADAPTERS</p><h2>四条检索路径，共用可核查的后端边界。</h2></div><p>适配实现、依赖就绪与真实运行，<br />分别表达，不互相替代。</p></div>
+      <figure class="system-figure" data-diagram="rag-retrieval" aria-labelledby="rag-retrieval-title">
+        <header class="figure-heading"><span class="figure-number">FIG. 02.2</span><h3 id="rag-retrieval-title">同一检索合约，两类后端边界</h3><p class="figure-subtitle">问题 + scope + Top-K → 显式选择一个后端；不是把所有路径默认串成一条。</p></header>
+        <div class="diagram-junction"><strong>RetrievalRequest</strong><span>默认 generic / Top-K = 5；通过 RagBackend 统一结果身份与轨迹。</span></div>
+        <div class="diagram-columns">
+          <article class="diagram-lane">
+            <h4>无模型 BM25 基线</h4>
+            <ol class="diagram-flow">
+              <li class="diagram-node"><span class="node-tag">SCOPE</span><strong>先筛分区</strong><small>generic / personal / all<br />只对当前可检索文档计算统计</small></li>
+              <li class="diagram-node"><span class="node-tag">RANK</span><strong>词法打分</strong><small>分词 → BM25 → 稳定排序<br />保留正分候选</small></li>
+              <li class="diagram-node is-accent"><span class="node-tag">RETURN</span><strong>取 Top-K</strong><small>返回原片段、分数与来源<br />空命中才默认拒答</small></li>
+            </ol>
+          </article>
+          <article class="diagram-lane">
+            <h4>显式配置的 RAGSDK 适配</h4>
+            <ol class="diagram-flow">
+              <li class="diagram-node is-optional"><span class="node-tag">RECALL</span><strong>Dense / Sparse</strong><small>TEI 向量召回、BM25 全文召回<br />可单路使用；当前只支持 generic</small></li>
+              <li class="diagram-node is-optional"><span class="node-tag">HYBRID</span><strong>SDK 融合</strong><small>两路候选 → MixRetrieveReranker<br />只在 Hybrid 模式进入</small></li>
+              <li class="diagram-node is-optional"><span class="node-tag">RERANK</span><strong>可选精排 → Top-K</strong><small>Hybrid + rerank 再调用 TEI<br />非精排模式直接返回候选</small></li>
+            </ol>
+          </article>
+        </div>
+        <ul class="diagram-legend"><li>蓝色节点：基线结果</li><li>虚线节点：显式配置能力</li><li>后端不可用：明确失败，不静默回退</li></ul>
+        <figcaption>上图是适配代码的能力路径，不是线上运行拓扑。四种 RAGSDK 模式不等于四路均已验证；当前公开证据尚未完成真实 RAGSDK 运行时验收。</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>保留应用分块，不把原件交给 SDK</h3>
+        <p>Native 适配使用 TEIEmbedding、MilvusDB、开启 BM25 的 MilvusDocstore 和 KnowledgeDB。索引按 source_id 归组，生成安全 staging 文件名，通过 <code>KnowledgeDB.add_file</code> 传入预分块正文、dense embedding 函数和来源 metadata；KnowledgeDB 的 white_paths 限定 staging。旧架构文档中的 LoaderMng/upload_files 是设计链，当前源码以 add_file 为准。</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="RAGSDK 检索模式对照，可横向滚动"><table>
+        <caption>RAGSDK 检索模式及适配中真实调用的组件</caption>
+        <thead><tr><th scope="col">模式</th><th scope="col">候选与排序链</th><th scope="col">输出轨迹</th></tr></thead>
+        <tbody>
+          <tr><td>Dense</td><td>Retriever + TEI dense embedding</td><td>dense</td></tr>
+          <tr><td>Sparse</td><td>FullTextRetriever + BM25 docstore</td><td>sparse</td></tr>
+          <tr><td>Hybrid</td><td>两路召回 → MixRetrieveReranker 融合</td><td>dense / sparse / fusion</td></tr>
+          <tr><td>Hybrid + rerank</td><td>融合候选 → TEI reranker → Top-K</td><td>再增加 rerank</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose">
+        <h3>候选参数与能力限制明确暴露</h3>
+        <p>混合模式默认 dense、sparse、fusion 候选上限均为 20；精排要求返回分数数量与候选数量一致，按分数排序后截 Top-K。当前融合调用的是 SDK 的 MixRetrieveReranker，不是项目自研 RRF。RAGSDK 只开放 generic scope，personal/all 需另行配置隔离集合；filters 只接受 document_id，原生生成链只支持 Dense 并已配置 LLM 的情况。</p>
+        <h3>缺依赖就失败，不用 BM25 冒充 RAGSDK</h3>
+        <p>factory 只创建配置对应的后端；Linux、Python 3.11、mx_rag、pymilvus 与服务配置不满足时返回 backend_unavailable，不静默降级。Native 的 runtime_verified 必须同时有索引与检索执行记录；矩阵合约禁止 not_run/failed 携带效果指标。当前公开证据不足以证明真实 RAGSDK 全链路运行，四路代码存在也不等于四路效果已测量。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/ragsdk_runtime.py#L233-L304" target="_blank" rel="noreferrer">NativeRagsdkRuntime.create</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/ragsdk_runtime.py#L345-L373" target="_blank" rel="noreferrer">index_documents / add_file</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/ragsdk_runtime.py#L443-L547" target="_blank" rel="noreferrer">retrieve / generate</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/rag/ragsdk_backend.py#L63-L145" target="_blank" rel="noreferrer">scope 与生成边界</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/evaluation/ragsdk_matrix.py#L95-L117" target="_blank" rel="noreferrer">矩阵状态合约</a></p>
+    </div></section>
+
+    <section class="section" id="evaluation"><div class="wrap panel">
+      <div class="section-heading"><div><p class="eyebrow">07 / MEASURE WHAT ACTUALLY RAN</p><h2>把高召回与拒答失败，一起留下来。</h2></div><p>108 条公开案例不是同一种证据。<br />先看测了什么，再看数字。</p></div>
+      <div class="prose">
+        <h3>真正执行的检索组：召回好，边界仍弱</h3>
+        <p>public-synthetic-portfolio-v1 使用 20 个合成片段。40 条检索问题中，32 条可回答、8 条不可回答；BM25 Recall@5 为 0.96875、MRR 为 1.0、nDCG@5 为 0.971969，但 no-answer 指标为 0.0。该指标判断不可回答问题是否没有检索结果，说明这 8 条仍命中了内容；它不是生成语义拒答率，更不能把 Recall 改称问答准确率。</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="公开组合报告的证据种类，可横向滚动"><table>
+        <caption>公开组合报告的样本规模与证据种类</caption>
+        <thead><tr><th scope="col">组别</th><th scope="col">案例数</th><th scope="col">真实执行范围</th><th scope="col">结果或边界</th></tr></thead>
+        <tbody>
+          <tr><td>检索</td><td>40</td><td>system_measurement · BM25</td><td>Recall@5 0.96875；no-answer 0.0</td></tr>
+          <tr><td>引用 / 拒答 / 冲突 / 时效</td><td>各 6，共 24</td><td>fixture_consistency · 固定回答与引用</td><td>不是模型忠实度或冲突仲裁实测</td></tr>
+          <tr><td>Agent / 计划</td><td>22 + 2</td><td>fixture_consistency · 预期工具与状态</td><td>没有执行应用 Agent 或模型</td></tr>
+          <tr><td>评分</td><td>20</td><td>fixture_consistency · 独立关键词/长度公式</td><td>MAE 34.7；10 分内比例 0.05</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose">
+        <h3>fixture 检查与运行验收，不混成一个通过率</h3>
+        <p>回答 fixture 直接读取预设 answer、citations 和 abstained；Agent 组比较预期工具序列与状态，评分组使用评测内部公式。因此这些结果只验证固定合约，不证明逐句事实正确性、真实 Agent 成功率或实际批改质量。另有 2026-07-23 CPU 容器报告保留真实 BM25 + LangGraph 问答与 SSE 验收，但明确 llm_called=false，也不是 RAGSDK 运行证据。</p>
+        <h3>公开版本与后续实验，保持可追溯</h3>
+        <p>本页源码固定到应用仓 ad9aafdd，而不是滚动 main。公开树保留部分边界实验代码与数据，但未保留相应完整运行报告，不能把本地分支指标补成公开成效。下一步价值在于用独立协议验证拒答、引用与生成，而不是只优化一个召回数字；模型与人工量表实验在下一章继续区分。</p>
+      </div>
+      <p class="source-note">源码依据：<a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/reports/public/public_synthetic_portfolio_v1.json#L6-L126" target="_blank" rel="noreferrer">公开聚合报告与 honest_boundaries</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/evaluation/public_portfolio.py#L393-L578" target="_blank" rel="noreferrer">fixture 实现与 run_public_portfolio</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/app/evaluation/retrieval.py#L155-L208" target="_blank" rel="noreferrer">检索指标定义</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni/blob/ad9aafdd79e4e7fbbd4fc6984e507c282eec62db/reports/public/docker_cpu_baseline_validation_v1.json#L25-L63" target="_blank" rel="noreferrer">CPU 真实运行边界</a></p>
+    </div></section>
+
+    <nav class="wrap chapter-pagination" aria-label="章节翻页">
+      <a href="index.html"><small><i class="ph ph-arrow-left" aria-hidden="true"></i> 上一章 · 01 / 04</small><strong>项目与架构</strong></a>
+      <a href="agent.html"><small>下一章 · 03 / 04 <i class="ph ph-arrow-right" aria-hidden="true"></i></small><strong>Agent 工作流</strong></a>
+    </nav>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer"><a href="../../">返回 Wednesday / Iroha-P 作品集</a><span>GradLoop RAGSDK Omni · 研循</span><a href="#top">回到顶部 <i class="ph ph-arrow-up" aria-hidden="true"></i></a></div></footer>
+  <script src="script.js"></script>
+</body>
+</html>
