@@ -1,22 +1,106 @@
-# 孙伟茗 · Wednesday / Iroha-P
+<div align="center">
 
-大模型应用开发、Agent 工程与多模态项目作品集。
+# 孙伟茗 · Wednesday
 
-[主页](https://iroha-p.github.io/) · [GitHub](https://github.com/Iroha-P)
+**大模型应用开发 · Agent 工程 · 多模态**
 
-## 项目主线
+从知识检索与工作流编排，到模型微调、语音交互与开发工具。
 
-- **GradLoop**：证据约束的 RAG 学习与面试训练 Agent，使用 LangGraph 工作流、FastAPI/SSE、人工确认与有限重试。[应用仓](https://github.com/Iroha-P/gradloop-ragsdk-omni)与[模型实验仓](https://github.com/Iroha-P/gradloop-ragsdk-omni-training)独立维护；公开 Demo 仅用合成语料，不代替真实模型推理验证。
-- **MultiModal-QC**：Qwen2-VL + QLoRA 工业图文质检，保留传统分类基线、指标与 Agent Pipeline。
-- **AIRI Memory Agent**：本地优先的长期记忆、RAG、知识审核与 LoRA 候选数据链路。
-- **MiniBox**：GPT-SoVITS、LLM 与 ESP32-S3 组成的角色语音交互闭环。
-- **Code Island / Image2 Local Studio**：AI Coding 状态与权限工具、本地生图与可复用 Prompt Skills。
+[![Website](https://img.shields.io/badge/Portfolio-GitHub%20Pages-0969DA?style=flat-square&logo=github&logoColor=white)](https://iroha-p.github.io/)
+[![Focus](https://img.shields.io/badge/Focus-LLM%20%26%20Agent-16846B?style=flat-square)](#精选项目)
+[![Multimodal](https://img.shields.io/badge/Multimodal-Vision%20%26%20Voice-9A6700?style=flat-square)](#精选项目)
 
-不将 Fork 当作原创项目，不将 smoke 通过当作模型质量提升。GradLoop 的 Ascend 实验结论见[固定评测报告](https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/main/docs/stage-b-npu-results-2026-07-29.md)。
+**[访问在线作品集](https://iroha-p.github.io/)** · **[精选项目](#精选项目)** · **[技术专题](#技术专题)** · **[GitHub](https://github.com/Iroha-P)**
 
-## 本地检查
+</div>
 
-纯 HTML/CSS/JavaScript，无构建依赖。安装 Node.js 后执行：
+---
+
+## 精选项目
+
+<h3>GradLoop</h3>
+<a href="https://iroha-p.github.io/projects/gradloop/">
+  <img src="assets/gradloop-public-qa.png" align="right" width="32%" alt="GradLoop 公开合成资料问答界面">
+</a>
+<p><strong>RAG 学习与面试训练 Agent</strong></p>
+<p>证据引用、LangGraph 工作流、人工确认与学习复盘。应用工程与模型实验独立维护。</p>
+<p><code>RAG</code> <code>LangGraph</code> <code>FastAPI / SSE</code></p>
+<p><a href="https://iroha-p.github.io/projects/gradloop/">项目介绍</a> · <a href="https://gradloop-ragsdk-omni.pages.dev/">公开 Demo</a><br><a href="https://github.com/Iroha-P/gradloop-ragsdk-omni">应用源码</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training">模型实验</a></p>
+<br clear="all">
+
+<h3>MultiModal-QC</h3>
+<a href="https://iroha-p.github.io/MultiModal-QC/">
+  <img src="assets/multimodal-qc.png" align="right" width="32%" alt="MultiModal-QC 工业多模态质检展示页">
+</a>
+<p><strong>工业图文质检与模型微调</strong></p>
+<p>Qwen2-VL + QLoRA 缺陷识别与描述，结合传统分类基线、Agent Pipeline 和检测记录。</p>
+<p><code>Qwen2-VL</code> <code>QLoRA</code> <code>Gradio</code></p>
+<p><a href="https://iroha-p.github.io/MultiModal-QC/">项目介绍</a> · <a href="https://github.com/Iroha-P/MultiModal-QC">源码与评测</a></p>
+<br clear="all">
+
+<h3>AIRI Memory Agent</h3>
+<a href="https://iroha-p.github.io/airi-gemma/">
+  <img src="assets/airi-gemma.png" align="right" width="32%" alt="AIRI Gemma 本地部署与记忆 Agent 展示页">
+</a>
+<p><strong>本地优先的长期记忆 Agent</strong></p>
+<p>基于 AIRI 的扩展，探索长期记忆、RAG、知识审核与 LoRA 候选数据链路。</p>
+<p><code>Gemma / Ollama</code> <code>Memory</code> <code>RAG</code></p>
+<p><a href="https://iroha-p.github.io/airi-gemma/">项目介绍</a> · <a href="https://github.com/Iroha-P/airi-gemma">扩展仓库</a> · <a href="https://github.com/moeru-ai/airi">AIRI 上游</a></p>
+<br clear="all">
+
+<h3>MiniBox</h3>
+<a href="https://iroha-p.github.io/MiniBox/">
+  <img src="assets/minibox.png" align="right" width="32%" alt="MiniBox 语音聊天工作台与 ESP32-S3 展示页">
+</a>
+<p><strong>角色语音交互与实体硬件</strong></p>
+<p>串联语音输入、LLM 对话与 GPT-SoVITS 语音合成，并接入 ESP32-S3 实体设备。</p>
+<p><code>GPT-SoVITS</code> <code>LLM</code> <code>ESP32-S3</code></p>
+<p><a href="https://iroha-p.github.io/MiniBox/">项目介绍</a> · <a href="https://github.com/Iroha-P/MiniBox">源码与演示</a></p>
+<br clear="all">
+
+<h3>Code Island</h3>
+<a href="https://iroha-p.github.io/Code-Island/">
+  <img src="assets/code-island.png" align="right" width="32%" alt="Code Island Windows 桌面状态工具展示页">
+</a>
+<p><strong>Windows AI Coding 桌面工具</strong></p>
+<p>在桌面集中查看 AI 编程助手状态、处理权限请求，并接收任务完成提醒。</p>
+<p><code>Windows</code> <code>.NET / WPF</code> <code>Agent Hooks</code></p>
+<p><a href="https://iroha-p.github.io/Code-Island/">项目介绍</a> · <a href="https://github.com/Iroha-P/Code-Island">源码与下载</a></p>
+<br clear="all">
+
+<h3>Image2 Local Studio</h3>
+<a href="https://iroha-p.github.io/image2-local-studio/">
+  <img src="assets/image2-local-studio.png" align="right" width="32%" alt="Image2 Local Studio 生图工作台与 Prompt Skill 展示页">
+</a>
+<p><strong>本地 API 生图工作台</strong></p>
+<p>整合生图参数、中文 Prompt Skills、本地超分和图片墙，API 配置保存在本机。</p>
+<p><code>Node.js</code> <code>Image API</code> <code>Prompt Skills</code></p>
+<p><a href="https://iroha-p.github.io/image2-local-studio/">项目介绍</a> · <a href="https://github.com/Iroha-P/image2-local-studio">源码与启动</a></p>
+<br clear="all">
+
+预览图来自公开演示界面或项目展示页；在线体验、功能实现与模型评测的范围，以对应仓库说明为准。
+
+## 技术专题
+
+GradLoop 的四个专题，从系统结构逐步展开到检索、工作流与模型评测。
+
+| 专题 | 主要内容 |
+| --- | --- |
+| [项目与架构](https://iroha-p.github.io/projects/gradloop/) | 产品定位、六层职责与工程边界 |
+| [知识与 RAG](https://iroha-p.github.io/projects/gradloop/rag.html) | 摄取与隐私分区、BM25、证据门控、RAGSDK 适配 |
+| [Agent 工作流](https://iroha-p.github.io/projects/gradloop/agent.html) | 状态图、固定工具、人工中断、checkpoint、SSE |
+| [模型与评测](https://iroha-p.github.io/projects/gradloop/models.html) | 数据划分、Ascend Base / LoRA、协议差异与人工双评 |
+
+GradLoop 公开 Demo 使用合成语料；模型实验结论见[固定评测报告](https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/main/docs/stage-b-npu-results-2026-07-29.md)。Fork 与上游扩展单独注明，连通性检查与模型效果分别报告。
+
+## 仓库维护
+
+本仓库承载 GitHub Pages 静态作品集，使用原生 HTML、CSS 和 JavaScript。
+
+<details>
+<summary><strong>本地预览与检查</strong></summary>
+
+安装 Node.js 后，在仓库根目录执行：
 
 ```sh
 node --check script.js
@@ -24,21 +108,16 @@ node --check projects/gradloop/script.js
 node --test tests/*.test.cjs
 ```
 
-使用静态 HTTP 服务预览仓库根目录。`localhost` / `127.0.0.1` 使用 2026-10-09 核对的内置公开项目索引；线上尝试同步 GitHub API，失败时保留内置索引并提示时效。成功同步不会重新加入已缺失、私有或归档的仓库。
+使用静态 HTTP 服务预览仓库根目录。部署配置、项目索引同步逻辑、内容更新与验证约定见[维护指南](docs/maintenance.md)。
 
-## 发布与内容维护
+</details>
 
-GradLoop 的独立介绍位于 `projects/gradloop/`，共四个原生可跳转页面，共享 CSS 与导航脚本：
+[内容与发布维护](docs/maintenance.md) · [内容更新记录](docs/content-update-20261009.md) · [视觉验收记录](design-qa.md)
 
-- [项目与架构](projects/gradloop/index.html)：产品定位、六层职责与技术章节入口。
-- [知识与 RAG](projects/gradloop/rag.html)：数据契约、摄取、隐私分区、题库、BM25 / 门控与 RAGSDK 适配。
-- [Agent 工作流](projects/gradloop/agent.html)：真实状态图、固定工具、人工中断、checkpoint、学习状态与 SSE。
-- [模型与评测](projects/gradloop/models.html)：来源关联划分、Ascend Base / LoRA、协议差异、文档 Worker 与人工双评。
+---
 
-采用原始品牌标志、真实公开合成界面和独立蓝绿色调，借鉴既有项目页的排版与阅读节奏，不复制其他项目的素材。技术事实链接锁定应用公开提交 `ad9aafdd79e4e7fbbd4fc6984e507c282eec62db` 与 Training 公开提交 `0364c69f5a9116f927932867dc22d370bb696a87`；历史实验、fixture 与待验收项分别标明。主页保留详情入口；作品集不启动模型、不上传资料，与功能 Demo 和模型实验仓独立。
+<div align="center">
 
-四页包含 7 幅可访问的原生图示：问答架构、隐私摄取、检索后端、七意图路由、人工中断恢复、来源组件划分与 Base / LoRA 冻结比较；配合能力边界、门控和人工双评表格。流程图是静态 HTML/CSS，不依赖绘图库；比较图保留零值与无提升结论，不把示意图当作实机截图。手机自动纵向排列，表格支持键盘横向滚动，精确节点清单可展开。
+<strong><a href="https://iroha-p.github.io/">浏览完整作品集</a></strong> · <a href="https://github.com/Iroha-P?tab=repositories">查看全部公开仓库</a>
 
-使用当前 GitHub Pages 配置发布，不引入新托管平台。内容变更先走独立分支；合入 Pages 配置的发布分支后才会改变线上主页。
-
-新增案例时同时核对公开 README、验证报告与真实截图；保留模型、数据集、样本量与验证边界。不上传私有数据、凭据、模型权重或运行日志。
+</div>
