@@ -32,7 +32,8 @@ const names = (repos) => Array.from(repos, (repo) => repo.name);
 
 test('the homepage explicitly includes LLM applications, Agent and multimodal work', () => {
   assert.match(html, /<title>[^<]*大模型应用[^<]*Agent[^<]*多模态/);
-  assert.match(html, /class="hero-lead"[^>]*>[^<]*大模型应用开发[^<]*Agent[^<]*多模态/);
+  assert.match(html, /AI 产品经理/);
+  assert.match(html, /Agent、知识检索与多模态/);
 });
 
 test('GradLoop leads the casebook without removing any existing project', () => {

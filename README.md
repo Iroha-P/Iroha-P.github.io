@@ -2,7 +2,7 @@
 
 # Wednesday / Iroha-P
 
-**大模型应用开发 · Agent 工程 · 多模态**
+**AI 产品思考 · 大模型应用开发 · Agent · 多模态**
 
 从知识检索与工作流编排，到模型微调、语音交互与开发工具。
 
@@ -103,6 +103,7 @@ GradLoop 公开 Demo 使用合成语料；模型实验结论见[固定评测报�
 安装 Node.js 后，在仓库根目录执行：
 
 ```sh
+node --check portfolio.js
 node --check script.js
 node --check projects/gradloop/script.js
 node --test tests/*.test.cjs
