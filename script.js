@@ -91,7 +91,7 @@ const renderRepos = (repos) => {
       <div class="repo-meta">
         <span>${escapeHtml(repo.language || 'Repository')}</span>
         <a href="https://github.com/${owner}/${encodeURIComponent(repo.name)}" target="_blank" rel="noreferrer" aria-label="打开 ${escapeHtml(repo.name)} GitHub 仓库">
-          <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          <span aria-hidden="true">↗</span>
         </a>
       </div>
     </article>
@@ -166,7 +166,7 @@ const setupActiveNavigation = () => {
   sections.forEach((section) => observer.observe(section));
 };
 
-document.querySelector('#copyright').textContent = `© ${new Date().getFullYear()} Sun Weiming`;
+document.querySelector('#copyright').textContent = `© ${new Date().getFullYear()} Wednesday / Iroha-P`;
 
 setupReveal();
 setupActiveNavigation();
