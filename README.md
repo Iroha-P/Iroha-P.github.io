@@ -1,6 +1,6 @@
 <div align="center">
 
-# 孙伟茗 · Wednesday
+# Wednesday / Iroha-P
 
 **大模型应用开发 · Agent 工程 · 多模态**
 
