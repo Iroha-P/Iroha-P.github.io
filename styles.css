@@ -29,3 +29,19 @@ h2{font-weight:650}.section-head>p{font-size:16px;color:#62655c}.tabs button{fon
 .airi-feature-image{display:block;align-self:center;background:#fff;border:1px solid #e2dcea;box-shadow:0 8px 24px #40345b08}.airi-system-panel{margin:0 14px 14px;padding:19px 16px;background:#fbf9ff;border:1px solid #e8e0f1;border-radius:11px}.airi-system-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:15px;margin-bottom:17px;border-bottom:1px solid #e0d9ea}.airi-system-heading strong{font-size:13px;line-height:1.5}.airi-system-heading small{font-size:10px;line-height:1.5;color:#81748f;text-align:right}.airi-system-flow{display:flex;align-items:center;justify-content:space-between;gap:7px}.airi-system-node{display:flex;align-items:center;gap:8px;min-width:0}.airi-system-node svg{width:23px;height:23px;flex-shrink:0;color:#7654cd}.airi-system-node strong{display:block;font-size:11px;line-height:1.5;white-space:nowrap}.airi-system-node small{display:block;font-size:10px;line-height:1.6;color:#857c90;white-space:nowrap}.airi-system-arrow{font-size:16px;color:#b5a7c9}.node-0 svg{color:#479b81}.node-1 svg{color:#6b67d9}.node-2 svg{color:#9460c8}.node-3 svg{color:#be689a}
 @media(min-width:701px) and (max-width:1100px){.airi-system-flow{display:grid;grid-template-columns:1fr 1fr;gap:16px}.airi-system-arrow{display:none}.airi-system-heading{align-items:start;flex-direction:column;gap:4px}.airi-system-heading small{text-align:left}}
 @media(max-width:700px){.airi-system-panel{padding:16px 12px;margin:0 10px 10px}.airi-system-heading{flex-wrap:wrap;gap:5px}.airi-system-heading small{text-align:left}.airi-system-flow{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px}.airi-system-arrow{display:none}.airi-system-node strong{font-size:12px}.airi-system-node small{font-size:11px}.airi-system-node svg{width:25px;height:25px}}
+
+/* Compact mobile system strip; CSS separators avoid iOS emoji rendering. */
+.ticker b{font-size:0;flex-shrink:0;width:8px;height:8px;background:var(--purple);transform:rotate(45deg)}
+@media(max-width:700px){
+.airi-system-panel{margin:0 6px 7px;padding:10px 7px;border-radius:8px}
+.airi-system-heading{margin-bottom:10px;padding-bottom:8px;gap:0}
+.airi-system-heading strong{font-size:11px;line-height:1.4}
+.airi-system-heading small{display:none}
+.airi-system-flow{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;align-items:start}
+.airi-system-node{flex-direction:column;gap:5px;text-align:center}
+.airi-system-node svg{width:18px;height:18px}
+.airi-system-node strong{font-size:9px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.airi-system-node small{display:none}
+.airi-feature{gap:14px}
+.ticker b{font-size:0;width:6px;height:6px}
+}
