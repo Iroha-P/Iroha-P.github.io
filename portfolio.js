@@ -25,27 +25,44 @@ viewTabs.forEach((tab, i) => {
   });
 });
 
-// 1. Few.io-style project category filter bar (Dropdown + Service Tabs synced)
+// 1. Few.io-style project category filter bar (Top Floating Subnav + Section Filter Bar synced)
 const filterPills = [...document.querySelectorAll('.filter-pill[data-filter]')];
+const subnavTabs = [...document.querySelectorAll('.subnav-tab[data-subfilter]')];
 const domainSelect = document.getElementById('few-domain-select');
+const globalSelect = document.getElementById('few-global-select');
 const projectRows = [...document.querySelectorAll('.few-launch-row[data-category]')];
 
-const applyCategoryFilter = (category) => {
-  filterPills.forEach((p) => p.classList.toggle('is-active', p.dataset.filter === category));
-  if (domainSelect && domainSelect.value !== category) {
-    domainSelect.value = category;
+const applyCategoryFilter = (category, shouldScroll = false) => {
+  if (category === 'featured') {
+    const feat = document.getElementById('featured');
+    if (feat) feat.scrollIntoView({ behavior: 'smooth' });
+    return;
   }
+  filterPills.forEach((p) => p.classList.toggle('is-active', p.dataset.filter === category));
+  subnavTabs.forEach((t) => t.classList.toggle('is-active', t.dataset.subfilter === category));
+  if (domainSelect && domainSelect.value !== category) domainSelect.value = category;
+  if (globalSelect && globalSelect.value !== category) globalSelect.value = category;
   projectRows.forEach((row) => {
     const match = category === 'all' || row.dataset.category === category;
     row.hidden = !match;
   });
+  if (shouldScroll) {
+    const workSec = document.getElementById('work');
+    if (workSec) workSec.scrollIntoView({ behavior: 'smooth' });
+  }
 };
 
 filterPills.forEach((pill) => {
   pill.addEventListener('click', () => applyCategoryFilter(pill.dataset.filter));
 });
+subnavTabs.forEach((tab) => {
+  tab.addEventListener('click', () => applyCategoryFilter(tab.dataset.subfilter, true));
+});
 if (domainSelect) {
   domainSelect.addEventListener('change', (e) => applyCategoryFilter(e.target.value));
+}
+if (globalSelect) {
+  globalSelect.addEventListener('change', (e) => applyCategoryFilter(e.target.value, true));
 }
 
 // 1b. Few.io Exclusive Single-Open Accordion in #approach (opening one closes others)
@@ -64,9 +81,23 @@ if (decisionItems.length > 1) {
   });
 }
 
-// 2. Few.io-style pointer-tracking row glow & custom cursor badge ("VIEW WORK" / "VIEW CASE")
+// 2. Few.io-style Translucent Morphing Cursor (14px dot -> 126px translucent glass "VIEW WORK" on hover -> shrinks back on leave)
+//    + Adjacent Row Undulation & Seamless Color-Bleed Gradient Transition
 const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+const rowPalettes = [
+  'rgba(99, 102, 241, 0.34)',   // 01 GradLoop: Indigo Blue-Violet
+  'rgba(2, 195, 157, 0.32)',    // 02 MultiModal-QC: Emerald Mint-Teal
+  'rgba(168, 85, 247, 0.34)',   // 03 AIRI: Electric Purple
+  'rgba(236, 72, 153, 0.32)',   // 04 MiniBox: Warm Magenta-Rose
+  'rgba(56, 189, 248, 0.30)',   // 05 Code Island: Cyan-Blue
+  'rgba(139, 92, 246, 0.34)',   // 06 Image2: Deep Violet
+];
+projectRows.forEach((row, idx) => {
+  row.style.setProperty('--row-accent', rowPalettes[idx % rowPalettes.length]);
+  row.style.setProperty('--row-next-accent', rowPalettes[(idx + 1) % rowPalettes.length]);
+});
 
 if (finePointer && !reducedMotion) {
   const badge = document.createElement('div');
@@ -76,22 +107,65 @@ if (finePointer && !reducedMotion) {
   document.body.appendChild(badge);
   const badgeText = badge.querySelector('span');
 
+  let mouseX = -200;
+  let mouseY = -200;
+  let curX = -200;
+  let curY = -200;
+  let rafId = 0;
+
+  const tickCursor = () => {
+    curX += (mouseX - curX) * 0.24;
+    curY += (mouseY - curY) * 0.24;
+    badge.style.left = `${curX.toFixed(1)}px`;
+    badge.style.top = `${curY.toFixed(1)}px`;
+    if (Math.abs(mouseX - curX) > 0.2 || Math.abs(mouseY - curY) > 0.2) {
+      rafId = requestAnimationFrame(tickCursor);
+    } else {
+      rafId = 0;
+    }
+  };
+
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      badge.classList.add('has-moved');
+      if (!rafId) rafId = requestAnimationFrame(tickCursor);
+    },
+    { passive: true }
+  );
+
+  // Adjacent row undulation: mark prev / active / next rows
+  const clearRowStates = () => {
+    projectRows.forEach((r) => r.classList.remove('is-hovered', 'is-prev-neighbor', 'is-next-neighbor'));
+  };
+
+  projectRows.forEach((row, idx) => {
+    row.addEventListener('mouseenter', () => {
+      clearRowStates();
+      row.classList.add('is-hovered');
+      if (projectRows[idx - 1]) projectRows[idx - 1].classList.add('is-prev-neighbor');
+      if (projectRows[idx + 1]) projectRows[idx + 1].classList.add('is-next-neighbor');
+    });
+    row.addEventListener('mouseleave', () => {
+      clearRowStates();
+    });
+  });
+
   const targets = [...document.querySelectorAll('[data-cursor-label]')];
   targets.forEach((el) => {
-    el.addEventListener('mouseenter', (e) => {
+    el.addEventListener('mouseenter', () => {
       badgeText.textContent = el.dataset.cursorLabel || 'VIEW WORK';
-      badge.classList.add('is-visible');
-      badge.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%) scale(1)`;
+      badge.classList.add('is-expanded');
     });
     el.addEventListener('mousemove', (e) => {
-      badge.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%) scale(1)`;
       const rect = el.getBoundingClientRect();
       el.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
       el.style.setProperty('--glow-y', `${e.clientY - rect.top}px`);
     });
-    el.addEventListener('mouseleave', (e) => {
-      badge.classList.remove('is-visible');
-      badge.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%) scale(0.4)`;
+    el.addEventListener('mouseleave', () => {
+      badge.classList.remove('is-expanded');
     });
   });
 }
@@ -153,7 +227,47 @@ if (headerEl) {
     brandSpan.innerHTML = '<em class="brand-signature" aria-hidden="true">Wednesday</em><span class="brand-name">Iroha-P · AI Product</span>';
   }
 
-  // Inject ambient dark glow blobs on subpages if not present
+  // Inject Second Floating Sub-Navbar (All Industries ▾ | All Services | ...) on subpages right below header
+  if (!document.querySelector('.few-subnav-bar')) {
+    const subnav = document.createElement('div');
+    subnav.className = 'few-subnav-bar wrap';
+    subnav.setAttribute('role', 'navigation');
+    subnav.setAttribute('aria-label', '悬浮项目快捷导航');
+    subnav.innerHTML = `
+      <div class="few-industry-select-wrap">
+        <select class="few-industry-select" aria-label="快速跳转项目案例" onchange="if(this.value)location.href=this.value">
+          <option value="">All Launches ▾</option>
+          <option value="${rootPrefix}cases/ecommerce-ai-tools.html">01 SeaMe AI 电商工具平台</option>
+          <option value="${rootPrefix}cases/careerpilot.html">02 职航 CareerPilot</option>
+          <option value="${rootPrefix}cases/airi-memory.html">03 AIRI Memory Agent</option>
+          <option value="${rootPrefix}cases/gradloop.html">04 GradLoop 研循</option>
+          <option value="${rootPrefix}cases/multimodal-qc.html">05 MultiModal-QC</option>
+          <option value="${rootPrefix}cases/minibox.html">06 MiniBox 语音硬件</option>
+          <option value="${rootPrefix}cases/code-island.html">07 Code Island</option>
+          <option value="${rootPrefix}cases/image-studio.html">08 Image2 Local Studio</option>
+        </select>
+      </div>
+      <div class="few-subnav-links">
+        <a class="subnav-tab" href="${rootPrefix}index.html#work">All Services</a>
+        <a class="subnav-tab" href="${rootPrefix}cases/ecommerce-ai-tools.html">Platform &amp; Billing</a>
+        <a class="subnav-tab" href="${rootPrefix}cases/careerpilot.html">Agent Orchestration</a>
+        <a class="subnav-tab" href="${rootPrefix}cases/airi-memory.html">Long-Term Memory</a>
+        <a class="subnav-tab" href="${rootPrefix}cases/gradloop.html">Evidence RAG</a>
+        <a class="subnav-tab" href="${rootPrefix}cases/multimodal-qc.html">Multimodal Eval</a>
+        <a class="subnav-tab" href="${rootPrefix}cases/minibox.html">Voice Hardware</a>
+      </div>
+    `;
+    headerEl.insertAdjacentElement('afterend', subnav);
+  }
+
+  // Inject Page Transition Curtain for smooth route navigation
+  if (!document.querySelector('.few-page-curtain')) {
+    const curtain = document.createElement('div');
+    curtain.className = 'few-page-curtain';
+    curtain.setAttribute('aria-hidden', 'true');
+    curtain.innerHTML = '<span class="curtain-logo">Wednesday</span>';
+    document.body.prepend(curtain);
+  }
   if (!document.querySelector('.few-ambient-canvas')) {
     const ambient = document.createElement('div');
     ambient.className = 'few-ambient-canvas';
@@ -316,6 +430,38 @@ if (footerCard && !reducedMotion) {
   };
   window.addEventListener('scroll', onFooterScroll, { passive: true });
   onFooterScroll();
+}
+
+// 6. Few.io Smooth Page Transition Curtain on internal route clicks
+const curtainEl = document.querySelector('.few-page-curtain');
+if (curtainEl && !reducedMotion) {
+  requestAnimationFrame(() => {
+    curtainEl.classList.add('is-loaded');
+  });
+
+  document.querySelectorAll('a[href]').forEach((link) => {
+    const href = link.getAttribute('href');
+    if (
+      !href ||
+      href.startsWith('#') ||
+      href.startsWith('http') ||
+      href.startsWith('mailto:') ||
+      link.target === '_blank'
+    ) {
+      return;
+    }
+    link.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      curtainEl.classList.remove('is-loaded');
+      curtainEl.classList.add('is-leaving');
+      setTimeout(() => {
+        window.location.href = link.href;
+      }, 340);
+    });
+  });
+} else if (curtainEl) {
+  curtainEl.classList.add('is-loaded');
 }
 
 if (!document.querySelector('.few-airi-float')) {

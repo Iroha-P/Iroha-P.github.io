@@ -3191,3 +3191,292 @@ h3 {
 .footer-brand {
   color: #ffffff;
 }
+
+/* =========================================================================
+   FEW.IO V2 ENHANCEMENTS:
+   1. Second Sticky Floating Sub-Navbar (.few-subnav-bar) right under Header
+   2. Route Page Transition Curtain (.few-page-curtain)
+   3. Translucent Morphing Cursor (14px dot -> 124px glass circle -> shrinks back)
+   4. Adjacent Row Undulation & Cross-Row Seamless Gradient Bleeding
+   5. Editorial Art Typography (Cormorant Garamond Italic + Syne Display + Gradient Text)
+   ========================================================================= */
+
+/* 1. Second Sticky Floating Sub-Navbar (All Industries ▾ | All Services | Web App ...) */
+.few-subnav-bar {
+  position: sticky;
+  top: 96px;
+  z-index: 105;
+  width: min(1240px, calc(100% - 48px));
+  margin: 10px auto 0;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(12, 4, 20, 0.72);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.few-subnav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.few-subnav-links::-webkit-scrollbar {
+  display: none;
+}
+
+.subnav-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 13px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(245, 243, 251, 0.72);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: color 240ms ease, transform 240ms ease, background 240ms ease;
+}
+
+.subnav-tab:hover,
+.subnav-tab:focus-visible {
+  color: #ffffff;
+  transform: translateY(-1.5px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.subnav-tab.is-active {
+  color: #02c39d;
+  font-weight: 700;
+}
+
+/* 2. Smooth Route Page Transition Curtain */
+.few-page-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: radial-gradient(circle at 50% 45%, #1d0c3b 0%, #0c0414 75%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 1;
+  transform: scaleY(1);
+  transform-origin: top center;
+  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 480ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.few-page-curtain.is-loaded {
+  opacity: 0;
+  transform: scaleY(0);
+}
+
+.few-page-curtain.is-leaving {
+  opacity: 1;
+  transform: scaleY(1);
+  transform-origin: bottom center;
+  pointer-events: auto;
+}
+
+.curtain-logo {
+  font-family: "Caveat", Georgia, cursive;
+  font-size: 54px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 28px rgba(2, 195, 157, 0.65);
+  letter-spacing: -0.02em;
+}
+
+/* 3. Translucent Morphing Cursor Badge (Small 14px dot -> Expands to 124px translucent glass circle -> Shrinks back on leave) */
+.few-cursor-badge {
+  position: fixed;
+  top: -100px;
+  left: -100px;
+  z-index: 9999;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(2, 195, 157, 0.45);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 16px rgba(2, 195, 157, 0.35);
+  color: #ffffff;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1);
+  transition: width 380ms cubic-bezier(0.22, 1, 0.36, 1),
+              height 380ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 340ms ease,
+              border-color 340ms ease,
+              box-shadow 340ms ease,
+              opacity 260ms ease,
+              transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-cursor-badge.has-moved {
+  opacity: 1;
+}
+
+.few-cursor-badge span {
+  opacity: 0;
+  transform: scale(0.5);
+  font-family: "Syne", "Manrope", sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #ffffff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Expanded state over projects / featured cards */
+.few-cursor-badge.is-expanded {
+  width: 124px;
+  height: 124px;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(2, 195, 157, 0.42) 0%,
+    rgba(139, 92, 246, 0.34) 65%,
+    rgba(20, 12, 38, 0.28) 100%
+  );
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1.5px solid rgba(134, 239, 172, 0.72);
+  box-shadow: 0 16px 40px rgba(2, 195, 157, 0.25), inset 0 1px 12px rgba(255, 255, 255, 0.28);
+}
+
+.few-cursor-badge.is-expanded span {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 4. Adjacent Row Undulation & Cross-Row Seamless Gradient Bleeding */
+.projects.few-launches-list {
+  position: relative;
+  overflow: visible;
+}
+
+.project-card.few-launch-row {
+  overflow: visible;
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 420ms ease,
+              border-color 420ms ease;
+}
+
+/* Allow the radial glow to bleed across the top and bottom borders into adjacent rows */
+.few-launch-row .row-glow {
+  inset: -95px -40px;
+  opacity: 0.32;
+  background: radial-gradient(
+    640px circle at var(--glow-x, 38%) var(--glow-y, 50%),
+    var(--row-accent, rgba(99, 102, 241, 0.32)) 0%,
+    var(--row-next-accent, rgba(2, 195, 157, 0.24)) 46%,
+    rgba(12, 4, 20, 0) 78%
+  );
+  filter: blur(18px);
+  transition: opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-launch-row.is-hovered {
+  z-index: 4;
+  transform: translateY(-6px) scale(1.012);
+  border-bottom-color: rgba(2, 195, 157, 0.38);
+}
+
+.few-launch-row.is-hovered .row-glow {
+  opacity: 0.95;
+  transform: scale(1.08);
+}
+
+/* Adjacent rows undulate (rise & dip sympathetically) and share the gradient bleed */
+.few-launch-row.is-prev-neighbor {
+  z-index: 2;
+  transform: translateY(-3px) scale(1.004);
+  opacity: 0.84 !important;
+}
+
+.few-launch-row.is-prev-neighbor .row-glow {
+  opacity: 0.52;
+}
+
+.few-launch-row.is-next-neighbor {
+  z-index: 2;
+  transform: translateY(4px) scale(1.004);
+  opacity: 0.84 !important;
+}
+
+.few-launch-row.is-next-neighbor .row-glow {
+  opacity: 0.55;
+}
+
+/* 5. Few.io Editorial Art Typography & Multi-Layer Gradient Headings */
+.art-serif {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: block;
+  font-size: 0.56em;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  background: linear-gradient(95deg, #02c39d 0%, #a78bfa 52%, #f472b6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero h1 {
+  font-family: "Syne", "Manrope", "Noto Sans SC", sans-serif;
+  background: linear-gradient(125deg, #ffffff 15%, #e2d9ff 58%, #86efac 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero h1 > span {
+  background: linear-gradient(95deg, #02c39d 0%, #38bdf8 55%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.few-launch-row h3,
+.featured-copy h3,
+.few-menu-links a,
+.next-launch-title {
+  font-family: "Syne", "Manrope", "Noto Sans SC", sans-serif;
+}
+
+.few-launch-row.is-hovered h3 {
+  background: linear-gradient(90deg, #ffffff 0%, #c4b5fd 55%, #5eead4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (max-width: 760px) {
+  .few-subnav-bar {
+    top: 84px;
+    width: calc(100% - 24px);
+    padding: 8px 10px;
+  }
+
+  .few-subnav-links {
+    display: none;
+  }
+}
