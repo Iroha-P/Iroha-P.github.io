@@ -3480,3 +3480,59 @@ h3 {
     display: none;
   }
 }
+
+/* =========================================================================
+   High-Contrast Fix for .button.dark, Select Options & Light-Bg Elements
+   ========================================================================= */
+
+.button.dark {
+  background: rgba(139, 92, 246, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(196, 162, 255, 0.45);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.button.dark:hover,
+.button.dark:focus-visible {
+  background: rgba(2, 195, 157, 0.2);
+  border-color: #02c39d;
+  color: #02c39d !important;
+  box-shadow: 0 10px 28px rgba(2, 195, 157, 0.25);
+}
+
+/* Ensure native <select> dropdown options never render white-on-white */
+.few-industry-select option {
+  background-color: #160c28;
+  color: #f5f3fb;
+}
+
+/* Ensure bottom contact round arrow button & history buttons stay high contrast */
+.round-link {
+  background: #02c39d !important;
+  color: #0c0414 !important;
+  font-weight: 800;
+  box-shadow: 0 8px 24px rgba(2, 195, 157, 0.35);
+}
+
+.round-link:hover {
+  background: #ffffff !important;
+  color: #0c0414 !important;
+}
+
+/* Strengthen secondary muted text contrast on dark background */
+.about-row h3 {
+  color: #ffffff;
+  font-weight: 750;
+}
+
+.about-row p,
+.about-title > p {
+  color: #d0cbe0;
+}
+
+.about-title h2 span {
+  color: #02c39d;
+}
