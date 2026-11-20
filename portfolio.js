@@ -153,34 +153,63 @@ if (finePointer && !reducedMotion) {
     });
   });
 
-  const targets = [...document.querySelectorAll('[data-cursor-label]')];
-  targets.forEach((el) => {
-    el.addEventListener('mouseenter', () => {
-      badgeText.textContent = el.dataset.cursorLabel || 'VIEW WORK';
-      badge.classList.add('is-expanded');
-    });
-    el.addEventListener('mousemove', (e) => {
-      const rect = el.getBoundingClientRect();
-      el.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
-      el.style.setProperty('--glow-y', `${e.clientY - rect.top}px`);
-    });
-    el.addEventListener('mouseleave', () => {
-      badge.classList.remove('is-expanded');
-    });
-  });
+  // Smart Cursor Logic:
+  // - Over ANY text element (especially small copy: p, small, li, code, td, h1-h3, a, button):
+  //   Hide "VIEW WORK / VIEW CASE" label so it NEVER collides with text, turn into a pure clean reading lens,
+  //   and physically magnify small text elements under the pointer!
+  // - Over non-text area of a project card / image / blank row space:
+  //   Expand into the 118px "VIEW WORK / VIEW CASE" badge.
+  // - Outside cards & text:
+  //   Shrink smoothly back to the 14px dot.
+  const textSelector = 'p, small, li, code, td, th, blockquote, cite, h1, h2, h3, h4, a, button, summary, .tags span, .stat-kicker, .evidence-stat strong, .rail-meta-item, .about-row';
+  const smallTextSelector = 'p, small, li, code, td, .tags span, .project-topline, .case-highlights li, .commerce-states li, .rail-meta-item, .about-row p, .evidence-stat small';
 
-  // Text recognition lens mode: when pointer moves over headings/copy outside cards, expand into difference lens so underlying text inverts & pops through
-  const textLensTargets = [
-    ...document.querySelectorAll('h1, h2, h3, .intro, .featured-summary, .project-copy, .about-lead, .case-subtitle, .case-narrative p'),
-  ];
-  textLensTargets.forEach((txtEl) => {
-    txtEl.addEventListener('mouseenter', () => {
-      badge.classList.add('is-text-lens');
-    });
-    txtEl.addEventListener('mouseleave', () => {
-      badge.classList.remove('is-text-lens');
-    });
-  });
+  let lastMagnifiedEl = null;
+  const setMagnifiedEl = (el) => {
+    if (lastMagnifiedEl === el) return;
+    if (lastMagnifiedEl) lastMagnifiedEl.classList.remove('is-cursor-magnified');
+    lastMagnifiedEl = el;
+    if (lastMagnifiedEl) lastMagnifiedEl.classList.add('is-cursor-magnified');
+  };
+
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      const target = e.target;
+      if (!(target instanceof Element)) return;
+
+      const cardEl = target.closest('[data-cursor-label]');
+      const mediaEl = target.closest('.project-media, .featured-visual, .few-row-arrow');
+      const textEl = target.closest(textSelector);
+      const smallEl = target.closest(smallTextSelector);
+
+      if (cardEl) {
+        const rect = cardEl.getBoundingClientRect();
+        cardEl.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
+        cardEl.style.setProperty('--glow-y', `${e.clientY - rect.top}px`);
+      }
+
+      // Case 1: Pointer is over thumbnail/visual/arrow OR blank card background (NO text underneath) -> Show "VIEW WORK / VIEW CASE"
+      if (cardEl && (mediaEl || !textEl)) {
+        badgeText.textContent = cardEl.dataset.cursorLabel || 'VIEW WORK';
+        badge.classList.add('is-expanded');
+        badge.classList.remove('is-text-lens');
+        setMagnifiedEl(null);
+      }
+      // Case 2: Pointer is over text (inside or outside a card) -> Hide "VIEW CASE" label, show pure lens, and magnify small text!
+      else if (textEl) {
+        badge.classList.remove('is-expanded');
+        badge.classList.add('is-text-lens');
+        setMagnifiedEl(smallEl);
+      }
+      // Case 3: Blank page background -> Shrink back to 14px dot
+      else {
+        badge.classList.remove('is-expanded', 'is-text-lens');
+        setMagnifiedEl(null);
+      }
+    },
+    { passive: true }
+  );
 }
 
 // 3. Few.io-style Case Study sticky rail scroll-spy (dim-to-crisp active chapter highlight)

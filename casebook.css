@@ -3934,3 +3934,59 @@ body.few-menu-active .few-subnav-bar {
     text-align: left;
   }
 }
+
+/* =========================================================================
+   FEW.IO V5: Smart Text-Magnifying Lens vs. Blank-Area "VIEW WORK" Badge
+   - Over text (especially small copy): pure label-free lens + physical text magnification
+   - Over blank card areas / thumbnails: show "VIEW WORK / VIEW CASE" badge without covering text
+   ========================================================================= */
+
+/* Pure label-free lens when over any text: never displays "VIEW CASE" on top of words */
+.few-cursor-badge.is-text-lens {
+  width: 82px;
+  height: 82px;
+  background: #f2e6cb;
+  mix-blend-mode: difference;
+}
+
+.few-cursor-badge.is-text-lens span {
+  opacity: 0 !important;
+  transform: scale(0.3) !important;
+}
+
+/* Physical magnification & crisp brightening for small text elements when cursor hovers over them */
+p,
+small,
+.tags span,
+.project-topline,
+.case-highlights li,
+.commerce-states li,
+.rail-meta-item,
+.about-row p,
+.evidence-stat small,
+.tradeoff-table td {
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+              color 220ms ease,
+              background-color 220ms ease;
+}
+
+.is-cursor-magnified {
+  transform: scale(1.065);
+  transform-origin: left center;
+  color: #ffffff !important;
+  position: relative;
+  z-index: 3;
+}
+
+.tags span.is-cursor-magnified {
+  transform: scale(1.14);
+  transform-origin: center center;
+  background: rgba(2, 195, 157, 0.24) !important;
+  border-color: #02c39d !important;
+}
+
+.commerce-states li.is-cursor-magnified,
+.case-highlights li.is-cursor-magnified {
+  transform: scale(1.035) translateX(4px);
+  background: rgba(139, 92, 246, 0.16);
+}
