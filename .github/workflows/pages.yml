@@ -1,0 +1,55 @@
+name: Publish portfolio and fixed archive
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/configure-pages@v5
+      - name: Assemble current homepage and pinned historical site
+        shell: bash
+        run: |
+          archive_commit=5460a50b876b43fad25f5c81663b7f1f7adb086e
+          archive_path=_site/history/cream-purple
+          mkdir -p _site
+          git archive HEAD -- . ':(exclude).github' | tar -x -C _site
+          mkdir -p "$archive_path"
+          git archive "$archive_commit" | tar -x -C "$archive_path"
+          test -s _site/index.html
+          test -s "$archive_path/index.html"
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

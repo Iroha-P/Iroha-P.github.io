@@ -12,7 +12,9 @@
 
 **[访问在线作品集](https://iroha-p.github.io/)** · **[版本历史](https://iroha-p.github.io/history/)** · **[精选项目](#精选项目)** · **[技术专题](#技术专题)** · **[GitHub](https://github.com/Iroha-P)**
 
-[![米白紫色版 · GitHub 固定存档](https://img.shields.io/badge/历史存档-米白紫色最终版-7C3AED?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Iroha-P/Iroha-P.github.io/tree/5460a50b876b43fad25f5c81663b7f1f7adb086e)
+[![在线浏览米白紫色最终版](https://img.shields.io/badge/历史存档-米白紫色最终版-7C3AED?style=for-the-badge&logo=github&logoColor=white)](https://iroha-p.github.io/history/cream-purple/)
+
+[查看米白紫色版的固定源码快照](https://github.com/Iroha-P/Iroha-P.github.io/tree/5460a50b876b43fad25f5c81663b7f1f7adb086e)
 
 </div>
 
