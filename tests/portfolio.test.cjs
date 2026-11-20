@@ -62,7 +62,7 @@ test('the version page links the current homepage and a fixed archive commit', (
   const historyPath = path.join(root, 'history');
   const history = fs.readFileSync(path.join(historyPath, 'index.html'), 'utf8');
   assert.match(history, /AI 产品经理作品集（当前版本）/);
-  assert.match(history, /href="\.\.\/">打开当前首页/);
+  assert.match(history, /href="\.\.\/index\.html">打开当前首页/);
   assert.match(history, /米白紫色版（固定存档）/);
   assert.match(history, /github\.com\/Iroha-P\/Iroha-P\.github\.io\/tree\/5460a50b876b43fad25f5c81663b7f1f7adb086e/);
   assert.equal((history.match(/<article>/g) || []).length, 2);

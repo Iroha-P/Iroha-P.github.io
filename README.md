@@ -10,7 +10,9 @@
 [![Focus](https://img.shields.io/badge/Focus-LLM%20%26%20Agent-16846B?style=flat-square)](#精选项目)
 [![Multimodal](https://img.shields.io/badge/Multimodal-Vision%20%26%20Voice-9A6700?style=flat-square)](#精选项目)
 
-**[访问在线作品集](https://iroha-p.github.io/)** · **[精选项目](#精选项目)** · **[技术专题](#技术专题)** · **[GitHub](https://github.com/Iroha-P)**
+**[访问在线作品集](https://iroha-p.github.io/)** · **[版本历史](https://iroha-p.github.io/history/)** · **[精选项目](#精选项目)** · **[技术专题](#技术专题)** · **[GitHub](https://github.com/Iroha-P)**
+
+[![米白紫色版 · GitHub 固定存档](https://img.shields.io/badge/历史存档-米白紫色最终版-7C3AED?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Iroha-P/Iroha-P.github.io/tree/5460a50b876b43fad25f5c81663b7f1f7adb086e)
 
 </div>
 
