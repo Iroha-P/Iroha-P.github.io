@@ -3699,3 +3699,238 @@ h2,
   color: #02c39d;
   text-shadow: 0 0 16px rgba(2, 195, 157, 0.65);
 }
+
+/* =========================================================================
+   FEW.IO V4:
+   1. Fix Full-Screen Menu Typography Proportions (Single-Line, Crisp Geometric Sans, No Wrapping)
+   2. Authentic Few.io 3-Bar -> Mint X Morph Animation (Absolute Center Pivot + Smooth Bezier)
+      & Hide Navbar "LAUNCHES" pill when menu is open (matching few.io)
+   ========================================================================= */
+
+/* 1. Authentic 3-bar to X morphing button */
+.few-menu-toggle {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-menu-toggle .menu-bar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 1.75px;
+  margin-left: -11px;
+  margin-top: -0.875px;
+  border-radius: 2px;
+  background: #ffffff;
+  transform-origin: 50% 50%;
+  transition: transform 520ms cubic-bezier(0.68, -0.15, 0.265, 1.15),
+              opacity 280ms ease,
+              background-color 360ms ease,
+              width 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-menu-toggle .menu-bar:nth-child(1) {
+  transform: translateY(-6px) rotate(0deg);
+}
+
+.few-menu-toggle .menu-bar:nth-child(2) {
+  transform: translateY(0) scaleX(1);
+}
+
+.few-menu-toggle .menu-bar:nth-child(3) {
+  transform: translateY(6px) rotate(0deg);
+}
+
+.few-menu-toggle:hover .menu-bar:nth-child(1) {
+  transform: translateY(-7px);
+}
+
+.few-menu-toggle:hover .menu-bar:nth-child(3) {
+  transform: translateY(7px);
+}
+
+/* Open state: morph smoothly around exact center into thin mint X */
+.few-menu-toggle.is-open {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: transparent;
+  transform: rotate(90deg);
+}
+
+.few-menu-toggle.is-open .menu-bar:nth-child(1) {
+  transform: translateY(0) rotate(45deg);
+  background: #02c39d;
+  width: 22px;
+}
+
+.few-menu-toggle.is-open .menu-bar:nth-child(2) {
+  opacity: 0;
+  transform: translateY(0) scaleX(0.1);
+}
+
+.few-menu-toggle.is-open .menu-bar:nth-child(3) {
+  transform: translateY(0) rotate(-45deg);
+  background: #02c39d;
+  width: 22px;
+}
+
+/* Hide top-bar LAUNCHES pill and subnav bar when full-screen menu is open (exact few.io behavior) */
+body.few-menu-active .few-launches-quick {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.95);
+}
+
+body.few-menu-active .few-subnav-bar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 2. Full-Screen Menu Layout & Typography Proportion Fix (Match few.io screenshot 1:1) */
+.few-menu-overlay {
+  padding: 104px 0 40px;
+  transition: opacity 550ms cubic-bezier(0.87, 0.1, 0.39, 0.93),
+              visibility 550ms cubic-bezier(0.87, 0.1, 0.39, 0.93);
+}
+
+.few-menu-inner {
+  grid-template-columns: minmax(0, 1.75fr) minmax(220px, 0.55fr);
+  align-items: center;
+  gap: 36px 56px;
+  width: min(1160px, calc(100% - 72px));
+}
+
+.few-menu-links {
+  gap: 6px;
+}
+
+.few-menu-links li {
+  overflow: hidden;
+  padding: 2px 0;
+}
+
+.few-menu-links a {
+  font-family: "Manrope", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: clamp(30px, 4.1vw, 54px);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  line-height: 1.22;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  color: rgba(235, 233, 245, 0.52);
+  transform: translate3d(0, 105%, 0) skewY(3deg);
+  opacity: 0;
+  transition: color 280ms ease,
+              transform 780ms cubic-bezier(0.87, 0.1, 0.39, 0.93),
+              opacity 620ms cubic-bezier(0.87, 0.1, 0.39, 0.93);
+  transition-delay: calc(var(--i, 0) * 75ms + 60ms);
+}
+
+.few-menu-overlay.is-open .few-menu-links a {
+  transform: translate3d(0, 0, 0) skewY(0deg);
+  opacity: 1;
+}
+
+.few-menu-links a:hover,
+.few-menu-links a:focus-visible {
+  color: #ffffff;
+  transform: translate3d(10px, 0, 0);
+}
+
+/* Clean, non-wrapping pill badge for the Chinese subtitle next to each English menu item */
+.few-menu-links .menu-cn {
+  font-family: "Noto Sans SC", "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(2, 195, 157, 0.1);
+  border: 1px solid rgba(2, 195, 157, 0.28);
+  color: #02c39d;
+  opacity: 0.78;
+  transition: opacity 240ms ease, background 240ms ease, transform 240ms ease;
+}
+
+.few-menu-links a:hover .menu-cn {
+  opacity: 1;
+  background: rgba(2, 195, 157, 0.2);
+  transform: translateY(-1px);
+}
+
+.few-menu-links .menu-rocket {
+  font-size: clamp(24px, 3.2vw, 42px);
+  line-height: 1;
+}
+
+.few-menu-sublinks {
+  margin-top: 32px;
+  padding-top: 22px;
+  gap: 12px 32px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 650ms cubic-bezier(0.87, 0.1, 0.39, 0.93) 380ms,
+              transform 650ms cubic-bezier(0.87, 0.1, 0.39, 0.93) 380ms;
+}
+
+.few-menu-overlay.is-open .few-menu-sublinks {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.few-menu-sublinks a {
+  font-family: "Manrope", "Noto Sans SC", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(235, 233, 245, 0.64);
+  white-space: nowrap;
+}
+
+.few-menu-aside {
+  text-align: right;
+  border-left: 0;
+  padding-left: 0;
+  gap: 24px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 650ms cubic-bezier(0.87, 0.1, 0.39, 0.93) 260ms,
+              transform 650ms cubic-bezier(0.87, 0.1, 0.39, 0.93) 260ms;
+}
+
+.few-menu-overlay.is-open .few-menu-aside {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Also switch project row headings back to crisp geometric Manrope so they match few.io's clean proportions */
+.few-launch-row h3,
+.featured-copy h3,
+.next-launch-title {
+  font-family: "Manrope", "Noto Sans SC", sans-serif !important;
+  letter-spacing: -0.025em;
+}
+
+@media (max-width: 820px) {
+  .few-menu-links a {
+    font-size: clamp(24px, 6.5vw, 36px);
+  }
+
+  .few-menu-aside {
+    text-align: left;
+  }
+}
