@@ -3536,3 +3536,166 @@ h3 {
 .about-title h2 span {
   color: #02c39d;
 }
+
+/* =========================================================================
+   FEW.IO V3:
+   1. Difference-Blend Text-Recognizing Cursor Lens (underlying text inverts & pops cleanly through cursor)
+   2. Hero AI Section (.hero-art & .core) Exact Diagonal Gradient from few.io/what-we-do Benefit Card
+      (Bottom-Left Electric Violet #9d2eff -> Top Cobalt Blue #1d3fd1 -> Deep Obsidian #0c0618)
+   ========================================================================= */
+
+/* 1. Difference-blend cursor lens: never obscures underlying typography; white text under the disk inverts to crisp dark ink */
+.few-cursor-badge {
+  width: 16px;
+  height: 16px;
+  background: #ede0c4;
+  border: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  mix-blend-mode: difference;
+  box-shadow: none;
+}
+
+/* When hovering over headings & body text: expands into a warm cream-gold difference lens (like the circle on "product, not" in screenshot) */
+.few-cursor-badge.is-text-lens {
+  width: 78px;
+  height: 78px;
+  background: #efe2c6;
+  mix-blend-mode: difference;
+}
+
+/* When hovering over project rows / case cards: expands to 118px difference lens with subtle inner arrow/label that lets underlying text & art invert through */
+.few-cursor-badge.is-expanded {
+  width: 118px;
+  height: 118px;
+  background: #d8f5d0;
+  border: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  mix-blend-mode: difference;
+  box-shadow: none;
+}
+
+.few-cursor-badge.is-expanded span {
+  color: #0c0414;
+  text-shadow: none;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+/* Slightly scale up hovered heading text so it feels magnified when the cursor passes over */
+h1,
+h2,
+.featured-copy h3,
+.few-launch-row h3 {
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), color 240ms ease;
+}
+
+.hero-copy h1:hover,
+.airi-feature-copy h2:hover,
+.featured-copy h3:hover {
+  transform: scale(1.025);
+  transform-origin: left center;
+}
+
+/* 2. Hero Right-Side AI Block (.hero-art & .core) -> Exact few.io/what-we-do Benefit Card Gradient */
+.hero-art {
+  position: relative;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-color: #0b0514;
+  background-image:
+    radial-gradient(circle at 12% 92%, rgba(162, 38, 255, 0.92) 0%, rgba(132, 32, 238, 0.52) 26%, rgba(12, 5, 22, 0) 56%),
+    radial-gradient(circle at 18% 18%, rgba(28, 72, 216, 0.72) 0%, rgba(23, 45, 145, 0.36) 34%, rgba(12, 5, 22, 0) 64%),
+    radial-gradient(circle at 88% 12%, rgba(37, 99, 235, 0.68) 0%, rgba(12, 5, 22, 0) 48%),
+    radial-gradient(circle at 52% 48%, rgba(2, 195, 157, 0.16) 0%, rgba(12, 5, 22, 0) 58%),
+    linear-gradient(145deg, #101738 0%, #0b0616 54%, #1a0933 100%);
+  background-size: 100% 100%;
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.65),
+    18px 14px 0 -4px rgba(18, 12, 34, 0.85),
+    20px 16px 0 -3px rgba(255, 255, 255, 0.08),
+    36px 28px 0 -8px rgba(14, 9, 26, 0.65),
+    38px 30px 0 -7px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.hero-art .art-top,
+.hero-art .art-bottom {
+  color: rgba(245, 243, 251, 0.72);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.hero-art .orbit {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Center AI Core Square inside .hero-art -> Vibrant Cobalt-to-Electric-Violet Card */
+.hero-art .core {
+  background:
+    radial-gradient(circle at 14% 90%, #a82ffc 0%, rgba(147, 51, 234, 0.65) 38%, transparent 70%),
+    radial-gradient(circle at 85% 15%, #2563eb 0%, rgba(29, 78, 216, 0.55) 42%, transparent 72%),
+    linear-gradient(145deg, #172554 0%, #0f0722 58%, #3b0764 100%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow:
+    0 20px 44px rgba(10, 4, 24, 0.65),
+    12px 14px 0 rgba(2, 195, 157, 0.25);
+}
+
+.hero-art .core > span {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(168, 85, 247, 0.55);
+}
+
+.hero-art .core small {
+  color: #02c39d;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+/* Floating cards inside .hero-art (01 UNDERSTAND / 02 BUILD / 03 VERIFY) */
+.hero-art .art-label {
+  background: rgba(14, 9, 28, 0.76);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+.hero-art .art-label > span {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: #02c39d;
+  margin-bottom: 4px;
+}
+
+.hero-art .art-label b {
+  font-family: "Syne", "Manrope", "Noto Sans SC", sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.hero-art .art-label small {
+  color: rgba(245, 243, 251, 0.72);
+}
+
+.hero-art .label-c {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.34) 0%, rgba(29, 78, 216, 0.28) 55%, rgba(14, 9, 28, 0.85) 100%);
+  border-color: rgba(192, 132, 252, 0.45);
+}
+
+.hero-art .spark {
+  color: #02c39d;
+  text-shadow: 0 0 16px rgba(2, 195, 157, 0.65);
+}

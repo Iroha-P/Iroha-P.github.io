@@ -168,6 +168,19 @@ if (finePointer && !reducedMotion) {
       badge.classList.remove('is-expanded');
     });
   });
+
+  // Text recognition lens mode: when pointer moves over headings/copy outside cards, expand into difference lens so underlying text inverts & pops through
+  const textLensTargets = [
+    ...document.querySelectorAll('h1, h2, h3, .intro, .featured-summary, .project-copy, .about-lead, .case-subtitle, .case-narrative p'),
+  ];
+  textLensTargets.forEach((txtEl) => {
+    txtEl.addEventListener('mouseenter', () => {
+      badge.classList.add('is-text-lens');
+    });
+    txtEl.addEventListener('mouseleave', () => {
+      badge.classList.remove('is-text-lens');
+    });
+  });
 }
 
 // 3. Few.io-style Case Study sticky rail scroll-spy (dim-to-crisp active chapter highlight)
