@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../casebook.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <a class="skip" href="#case-content">跳到案例内容</a>
@@ -133,16 +133,23 @@
       </div>
     </div>
 
-    <nav class="featured-case-nav" aria-label="演示与案例">
-      <a class="button primary" href="airi-memory.html">阅读下一篇：AIRI 长期记忆案例 →</a>
-      <a class="button airi-site" href="gradloop.html">查看 GradLoop 检索与状态底座 →</a>
-      <a class="text-link" href="../demo/gradloop/" target="_blank" rel="noopener">体验底座公开合成演示 ↗</a>
-      <a class="text-link" href="../index.html#featured">← 返回精选案例</a>
-    </nav>
+    <section class="few-next-launch" aria-label="下一个项目" data-cursor-label="NEXT CASE">
+      <div class="next-launch-glow" aria-hidden="true"></div>
+      <span class="next-launch-eyebrow">Next Launch · 下一个主推案例</span>
+      <a class="next-launch-title" href="airi-memory.html">AIRI Memory Agent <span aria-hidden="true">→</span></a>
+      <p class="next-launch-sub">本人开发长期记忆与 Review Workbench 冲突审核模块 · 把事实记忆与角色行为解耦</p>
+      <div class="featured-case-nav" aria-label="演示与案例">
+        <a class="button primary" href="airi-memory.html">阅读 AIRI 长期记忆案例 →</a>
+        <a class="button airi-site" href="gradloop.html">查看 GradLoop 检索与状态底座 →</a>
+        <a class="text-link" href="../demo/gradloop/" target="_blank" rel="noopener">体验底座公开合成演示 ↗</a>
+        <a class="text-link" href="../index.html#featured">← 返回精选案例</a>
+      </div>
+    </section>
   </main>
   <footer class="wrap">
     <a href="../index.html">Wednesday / Iroha-P</a>
     <a href="#case-content">回到案例开头 ↑</a>
   </footer>
+  <script src="../portfolio.js" defer></script>
 </body>
 </html>

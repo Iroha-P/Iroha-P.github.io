@@ -880,3 +880,2314 @@
   flex-wrap: wrap;
   gap: 8px 16px;
 }
+
+/* =========================================================================
+   Few.io-inspired Launches Directory, Case Study Sticky Rail & Motion System
+   (Option A: Cream + Purple + Lime/Mint Accents)
+   ========================================================================= */
+
+/* 1. Filter Bar & Dual View Switcher (#work) */
+.few-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  background: rgba(252, 251, 246, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid #d5d0c4;
+  border-radius: 14px;
+}
+
+.few-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #63655b;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: color 240ms ease, background 240ms ease, border-color 240ms ease, transform 240ms ease;
+}
+
+.filter-pill span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #eae7de;
+  color: #5b5868;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.filter-pill:hover,
+.filter-pill:focus-visible {
+  color: var(--purple);
+  background: #f0ecf9;
+  transform: translateY(-1px);
+}
+
+.filter-pill.is-active {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+}
+
+.filter-pill.is-active span {
+  background: var(--lime);
+  color: #1f221b;
+}
+
+.work-view-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+/* 2. Few.io /launches Horizontal Project Directory Rows */
+.projects.few-launches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid #cfcabd;
+}
+
+.project-card.few-launch-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 28px 34px;
+  padding: 30px 22px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #cfcabd;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  isolation: isolate;
+  transition: opacity 380ms cubic-bezier(0.22, 1, 0.36, 1), background-color 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-card.few-launch-row[hidden] {
+  display: none !important;
+}
+
+/* Pointer-tracking radial glow inside row */
+.few-launch-row .row-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    520px circle at var(--glow-x, 65%) var(--glow-y, 50%),
+    rgba(100, 80, 213, 0.14) 0%,
+    rgba(220, 237, 166, 0.18) 42%,
+    rgba(245, 243, 236, 0) 78%
+  );
+  transition: opacity 320ms ease;
+}
+
+.few-launch-row:hover .row-glow,
+.few-launch-row:focus-within .row-glow {
+  opacity: 1;
+}
+
+/* Dim non-hovered sibling rows on desktop when hovering the list (Few.io dim-to-crisp pattern) */
+@media (hover: hover) and (min-width: 921px) {
+  .few-launches-list:hover .few-launch-row:not(:hover):not(:focus-within) {
+    opacity: 0.56;
+  }
+}
+
+.few-launch-row:hover,
+.few-launch-row:focus-within {
+  background-color: rgba(255, 254, 249, 0.72);
+}
+
+.few-launch-row .project-media {
+  height: 204px;
+  padding: 16px 16px 0;
+  border-radius: 18px;
+  border: 1px solid rgba(100, 80, 213, 0.14);
+  box-shadow: 0 10px 26px rgba(45, 35, 80, 0.08);
+  overflow: hidden;
+}
+
+.few-launch-row .project-media img {
+  transition: transform 850ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-launch-row:hover .project-media img,
+.few-launch-row:focus-within .project-media img {
+  transform: scale(1.06) translateY(-3px);
+}
+
+.few-row-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.few-launch-row .project-topline {
+  margin-top: 0;
+  margin-bottom: 8px;
+  justify-content: flex-start;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.few-launch-row .case-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e9e4f8;
+  color: #4635a8;
+  font-weight: 800;
+}
+
+.few-row-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 18px;
+}
+
+.few-launch-row h3 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  color: #2c2d28;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1), color 260ms ease;
+}
+
+.few-launch-row:hover h3,
+.few-launch-row:focus-within h3 {
+  color: var(--purple);
+  transform: translateY(-2px);
+}
+
+.few-launch-row .project-sub {
+  font-size: 15px;
+  font-weight: 650;
+  color: #5b5e54;
+}
+
+.few-launch-row .project-copy {
+  margin: 10px 0 12px;
+  min-height: 0;
+  max-width: 68ch;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: #4f5249;
+}
+
+.few-launch-row .tags {
+  margin: 0 0 14px;
+  gap: 7px;
+}
+
+.few-launch-row .tags span {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #f0ecf9;
+  border: 1px solid #d5cbed;
+  color: #463788;
+  font-size: 11px;
+  font-weight: 650;
+  transition: border-color 240ms ease, background 240ms ease;
+}
+
+.few-launch-row:hover .tags span {
+  border-color: #9e8ce0;
+  background: #e8e1fb;
+}
+
+/* Compact horizontal action pills inside each Few.io launch row */
+.few-launch-row .project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding-top: 12px;
+  border-top: 1px dashed #dcd8cc;
+}
+
+.few-launch-row .project-links > a {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+}
+
+.few-launch-row .project-links > a:first-child:nth-last-child(3) {
+  grid-column: auto;
+}
+
+.few-launch-row .project-links small {
+  font-size: 11px;
+  opacity: 0.86;
+}
+
+.few-launch-row .project-links small::before {
+  content: "· ";
+}
+
+/* Right-hand diagonal arrow ↗ circle (Few.io WorkItem arrow) */
+.few-row-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #ccc7b8;
+  background: #faf8f1;
+  color: #5a5c53;
+  transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1), background 240ms ease, border-color 240ms ease, color 240ms ease;
+}
+
+.few-row-arrow svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-launch-row:hover .few-row-arrow,
+.few-launch-row:focus-within .few-row-arrow {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.few-launch-row:hover .few-row-arrow svg,
+.few-launch-row:focus-within .few-row-arrow svg {
+  transform: translate(2px, -2px);
+}
+
+/* 3. Few.io Custom Floating Cursor Badge ("VIEW WORK") */
+.few-cursor-badge {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 98px;
+  height: 98px;
+  border-radius: 50%;
+  background: var(--lime);
+  border: 1.5px solid #23251f;
+  color: #191b16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 14px 30px rgba(30, 25, 55, 0.18);
+  transform: translate3d(-200px, -200px, 0) translate(-50%, -50%) scale(0.4);
+  transition: opacity 260ms cubic-bezier(0.22, 1, 0.36, 1), transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-cursor-badge.is-visible {
+  opacity: 0.95;
+}
+
+.few-cursor-badge span {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+/* 4. Few.io Inverted Circular Toggle on Decision Accordion */
+.decision-item summary {
+  grid-template-columns: 44px minmax(0, 1fr) 34px;
+}
+
+.few-toggle-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #b8b3c8;
+  background: #ece8f6;
+  color: #3a2d78;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background 220ms ease, color 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+
+.few-toggle-circle::before {
+  content: "+";
+}
+
+.decision-item[open] .few-toggle-circle {
+  background: #232034;
+  border-color: #232034;
+  color: var(--lime);
+}
+
+.decision-item[open] .few-toggle-circle::before {
+  content: "−";
+}
+
+/* 5. Few.io 25/75 Sticky Case Study Left Rail (Metadata + Dim-to-Crisp Scroll-Spy TOC) */
+.case-layout {
+  grid-template-columns: 255px minmax(0, 1fr);
+  gap: 56px;
+  margin-top: 52px;
+}
+
+.case-layout aside.few-case-rail {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 20px;
+  background: #faf8f1;
+  border: 1px solid #d8d4c8;
+  border-radius: 14px;
+}
+
+.rail-meta-block {
+  display: grid;
+  gap: 13px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e1ddd1;
+}
+
+.rail-meta-item {
+  display: grid;
+  gap: 3px;
+}
+
+.rail-meta-item span,
+.rail-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.rail-meta-item strong {
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.45;
+  color: #2b2d27;
+}
+
+.rail-toc-group {
+  display: grid;
+  gap: 6px;
+}
+
+.rail-toc-group .rail-kicker {
+  margin-bottom: 4px;
+}
+
+.rail-toc-group a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #84867c;
+  transition: color 220ms ease, background 220ms ease, transform 220ms ease;
+}
+
+.rail-toc-group a::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c7c4b8;
+  flex-shrink: 0;
+  transition: background 220ms ease, transform 220ms ease;
+}
+
+.rail-toc-group a:hover {
+  color: #242522;
+  background: #f0ede4;
+}
+
+.rail-toc-group a.is-active {
+  color: #1e1936;
+  font-weight: 750;
+  background: #ece7f9;
+  transform: translateX(2px);
+}
+
+.case-narrative,
+.case-layout > * {
+  min-width: 0;
+}
+
+.case-narrative code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.rail-toc-group a.is-active::before {
+  background: var(--purple);
+  box-shadow: 0 0 0 3px #d8cff6;
+}
+
+/* 6. Few.io "Next Launch" Ambient Gradient Footer Banner on Case Pages */
+.few-next-launch {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  margin-top: 64px;
+  padding: clamp(32px, 5vw, 56px);
+  border-radius: 20px;
+  border: 1px solid #cfc5ea;
+  background: linear-gradient(135deg, #f3effd 0%, #eae4fb 48%, #eef4dc 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.next-launch-glow {
+  position: absolute;
+  inset: -30% -10% auto auto;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100, 80, 213, 0.22) 0%, rgba(220, 237, 166, 0.25) 50%, transparent 72%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.next-launch-eyebrow {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(16px, 2vw, 21px);
+  color: var(--purple);
+}
+
+.next-launch-title {
+  font-size: clamp(30px, 4.2vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  color: #211b3a;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  transition: color 240ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.next-launch-title:hover {
+  color: var(--purple);
+  transform: translateX(4px);
+}
+
+.next-launch-sub {
+  margin: 2px 0 8px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #51534a;
+  max-width: 64ch;
+}
+
+.few-next-launch .featured-case-nav {
+  margin-top: 12px;
+}
+
+/* Responsive mobile & tablet adjustments for Few.io components */
+@media (max-width: 920px) {
+  .project-card.few-launch-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 24px 16px;
+  }
+
+  .few-launch-row .project-media {
+    height: 220px;
+  }
+
+  .few-row-arrow {
+    display: none;
+  }
+
+  .case-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .case-layout aside.few-case-rail {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .rail-meta-block {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rail-toc-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .rail-toc-group .rail-kicker {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .few-filter-bar {
+    padding: 12px;
+  }
+
+  .filter-pill {
+    padding: 7px 11px;
+    font-size: 11.5px;
+  }
+
+  .few-launch-row .project-links > a {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .rail-meta-block {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* =========================================================================
+   Few.io-style Floating Frosted-Glass Navbar, Script Signature & AIRI Badge
+   ========================================================================= */
+
+header,
+header.few-glass-header {
+  position: sticky;
+  top: 14px;
+  z-index: 90;
+  width: min(1240px, calc(100% - 40px));
+  height: auto;
+  min-height: 76px;
+  margin: 14px auto 0;
+  padding: 10px 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(100, 80, 213, 0.22);
+  background: rgba(247, 245, 238, 0.72);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 10px 30px rgba(42, 32, 82, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  transition: background 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+header.is-scrolled {
+  background: rgba(251, 249, 244, 0.86);
+  border-color: rgba(100, 80, 213, 0.34);
+  box-shadow: 0 14px 36px rgba(36, 26, 76, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-signature {
+  font-family: "Caveat", "Snell Roundhand", "Apple Chancery", "Brush Script MT", Georgia, cursive;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 31px;
+  letter-spacing: -0.02em;
+  color: var(--purple);
+  transform: rotate(-3deg);
+  transform-origin: left center;
+  display: inline-block;
+  margin-bottom: -2px;
+  text-shadow: 0 2px 10px rgba(100, 80, 213, 0.18);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), color 220ms ease;
+}
+
+.brand:hover .brand-signature {
+  transform: rotate(-1deg) scale(1.05);
+  color: #4a35be;
+}
+
+.brand-name {
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #363442;
+  letter-spacing: 0.02em;
+}
+
+.brand-text small {
+  margin-top: 3px;
+  font-size: 8.5px;
+  letter-spacing: 1.1px;
+}
+
+header nav a {
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+header nav a:hover {
+  background: rgba(100, 80, 213, 0.08);
+}
+
+header .nav-git {
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(100, 80, 213, 0.28);
+  transition: background 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+
+header .nav-git:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Bottom-Right Floating AIRI Mascot Badge (Few.io "LET'S CHAT" Waving Hand Equivalent) */
+.few-airi-float {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 95;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: rgba(31, 25, 56, 0.86);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(220, 237, 166, 0.55);
+  box-shadow: 0 14px 34px rgba(28, 20, 58, 0.28), 0 0 0 4px rgba(100, 80, 213, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 260ms ease,
+              box-shadow 260ms ease;
+}
+
+.few-airi-float:hover,
+.few-airi-float:focus-visible {
+  transform: scale(0.96) translateY(-2px);
+  border-color: var(--lime);
+  box-shadow: 0 18px 40px rgba(100, 80, 213, 0.38), 0 0 0 5px rgba(220, 237, 166, 0.35);
+}
+
+.airi-float-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: airiRingSpin 26s linear infinite;
+}
+
+.airi-float-ring text {
+  fill: #f3f0ff;
+  font-size: 9.2px;
+  font-weight: 800;
+  letter-spacing: 2.05px;
+  text-transform: uppercase;
+}
+
+.airi-float-avatar {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 35%, #ffffff 0%, #dcd4f8 100%);
+  border: 2px solid var(--lime);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: airiChibiSway 3.4s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+
+.few-airi-float:hover .airi-float-avatar,
+.few-airi-float:focus-visible .airi-float-avatar {
+  animation: airiChibiWaveFast 0.75s ease-in-out infinite;
+}
+
+.airi-float-avatar img {
+  width: 155%;
+  height: 155%;
+  object-fit: cover;
+  object-position: 47% 14%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Cute greeting speech bubble on hover */
+.airi-float-bubble {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(8px) scale(0.92);
+  white-space: nowrap;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(31, 25, 56, 0.92);
+  color: var(--lime);
+  border: 1px solid rgba(220, 237, 166, 0.5);
+  box-shadow: 0 8px 22px rgba(25, 18, 48, 0.22);
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-airi-float:hover .airi-float-bubble,
+.few-airi-float:focus-visible .airi-float-bubble {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0) scale(1);
+}
+
+@keyframes airiRingSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes airiChibiSway {
+  0%, 100% {
+    transform: rotate(-7deg) translateY(0);
+  }
+  25% {
+    transform: rotate(8deg) translateY(-2px);
+  }
+  50% {
+    transform: rotate(-5deg) translateY(1px);
+  }
+  75% {
+    transform: rotate(7deg) translateY(-1.5px);
+  }
+}
+
+@keyframes airiChibiWaveFast {
+  0%, 100% {
+    transform: rotate(-13deg) translateY(-2px) scale(1.05);
+  }
+  50% {
+    transform: rotate(13deg) translateY(-4px) scale(1.05);
+  }
+}
+
+@media (max-width: 700px) {
+  header,
+  header.few-glass-header {
+    top: 8px;
+    width: calc(100% - 24px);
+    margin-top: 8px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    min-height: 0;
+  }
+
+  .brand-signature {
+    font-size: 25px;
+  }
+
+  .brand-name {
+    font-size: 10.5px;
+  }
+
+  .few-airi-float {
+    right: 14px;
+    bottom: 14px;
+    width: 78px;
+    height: 78px;
+  }
+
+  .airi-float-avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .airi-float-bubble {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   Few.io-style Minimal Top Navbar (🚀 CASEBOOK + 3-Bar Circle Toggle)
+   & Full-Screen Menu Overlay Drawer
+   ========================================================================= */
+
+header.few-glass-header {
+  z-index: 120;
+}
+
+/* Hide crowded middle nav links when Few.io menu toggle is present */
+header.few-glass-header .legacy-inline-nav {
+  display: none;
+}
+
+.few-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.few-launches-quick,
+.few-header-actions .nav-git {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 80, 213, 0.25);
+  background: rgba(255, 255, 255, 0.58);
+  color: #292248;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background 240ms ease, border-color 240ms ease, color 240ms ease, transform 240ms ease;
+}
+
+.few-launches-quick:hover,
+.few-header-actions .nav-git:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.rocket-icon {
+  display: inline-block;
+  font-size: 14px;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-launches-quick:hover .rocket-icon {
+  transform: translate(2px, -2px) rotate(8deg);
+}
+
+/* 3-bar circular hamburger toggle button -> transforms into mint/lime X when open */
+.few-menu-toggle {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(100, 80, 213, 0.35);
+  background: rgba(255, 255, 255, 0.65);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 260ms ease, background 260ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-menu-toggle:hover,
+.few-menu-toggle:focus-visible {
+  border-color: var(--purple);
+  background: #f2edfc;
+  transform: scale(1.04);
+}
+
+.few-menu-toggle .menu-bar {
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: #282048;
+  transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 220ms ease,
+              background-color 260ms ease,
+              width 260ms ease;
+}
+
+.few-menu-toggle:hover .menu-bar {
+  background: var(--purple);
+}
+
+/* When menu is open, header floats on top of dark/ambient drawer */
+body.few-menu-active {
+  overflow: hidden;
+}
+
+body.few-menu-active header.few-glass-header {
+  background: rgba(20, 14, 36, 0.78);
+  border-color: rgba(220, 237, 166, 0.32);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+
+body.few-menu-active .brand-signature {
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(220, 237, 166, 0.35);
+}
+
+body.few-menu-active .brand-name {
+  color: #e6e1f7;
+}
+
+body.few-menu-active .brand-text small {
+  color: #a9a2c4;
+}
+
+body.few-menu-active .few-launches-quick {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #f3f0ff;
+}
+
+.few-menu-toggle.is-open {
+  background: rgba(220, 237, 166, 0.14);
+  border-color: var(--lime);
+}
+
+.few-menu-toggle.is-open .menu-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  background: var(--lime);
+}
+
+.few-menu-toggle.is-open .menu-bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.few-menu-toggle.is-open .menu-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  background: var(--lime);
+}
+
+/* Full-Screen Menu Overlay (Few.io dark plum canvas + bottom-right mint/teal & purple radial blobs) */
+.few-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: #0d0718;
+  color: #f5f3fb;
+  display: flex;
+  align-items: center;
+  padding: 116px 0 48px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+              visibility 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-menu-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.few-menu-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.few-menu-glow.glow-mint {
+  right: -12%;
+  bottom: -18%;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(2, 195, 157, 0.42) 0%, rgba(220, 237, 166, 0.22) 45%, rgba(13, 7, 24, 0) 75%);
+}
+
+.few-menu-glow.glow-purple {
+  left: -8%;
+  top: 8%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(100, 80, 213, 0.35) 0%, rgba(180, 70, 220, 0.14) 50%, rgba(13, 7, 24, 0) 75%);
+}
+
+.few-menu-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(240px, 0.65fr);
+  align-items: end;
+  gap: 48px 64px;
+  width: min(1200px, calc(100% - 64px));
+  margin: auto;
+}
+
+.few-menu-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.few-menu-links li {
+  overflow: hidden;
+}
+
+.few-menu-links a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 16px;
+  font-size: clamp(34px, 5.2vw, 66px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  color: rgba(235, 231, 248, 0.56);
+  transform: translateY(28px) skewY(2deg);
+  opacity: 0;
+  transition: color 240ms ease,
+              transform 540ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 540ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 65ms);
+}
+
+.few-menu-overlay.is-open .few-menu-links a {
+  transform: translateY(0) skewY(0);
+  opacity: 1;
+}
+
+.few-menu-links a:hover,
+.few-menu-links a:focus-visible {
+  color: #ffffff;
+  transform: translateX(10px);
+}
+
+.few-menu-links .menu-cn {
+  font-size: clamp(14px, 1.6vw, 20px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #34d399;
+  opacity: 0.85;
+}
+
+.few-menu-links .menu-rocket {
+  font-size: clamp(26px, 3.8vw, 48px);
+  display: inline-block;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.few-menu-links a:hover .menu-rocket {
+  transform: translate(6px, -6px) rotate(10deg);
+}
+
+.few-menu-sublinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  margin-top: 38px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.few-menu-sublinks a {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(235, 231, 248, 0.68);
+  transition: color 200ms ease, transform 200ms ease;
+}
+
+.few-menu-sublinks a:hover,
+.few-menu-sublinks a:focus-visible {
+  color: var(--lime);
+  transform: translateY(-2px);
+}
+
+.few-menu-aside {
+  display: grid;
+  gap: 26px;
+  padding-left: 32px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.menu-meta-block span {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #34d399;
+  margin-bottom: 7px;
+}
+
+.menu-meta-block p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: rgba(245, 243, 252, 0.88);
+}
+
+.menu-meta-block a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  decoration-color: rgba(52, 211, 153, 0.5);
+  transition: color 200ms ease;
+}
+
+.menu-meta-block a:hover {
+  color: var(--lime);
+}
+
+@media (max-width: 820px) {
+  .few-menu-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    width: calc(100% - 40px);
+  }
+
+  .few-menu-aside {
+    padding-left: 0;
+    padding-top: 24px;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .few-launches-quick {
+    padding: 7px 11px;
+    font-size: 10.5px;
+  }
+
+  .few-menu-toggle {
+    width: 42px;
+    height: 42px;
+  }
+
+  .few-menu-aside {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+/* =========================================================================
+   Few.io Dual Filter Bar (Dropdown + Service Tabs), AnimatedObject Reveals
+   & Scroll-Scaled Marquee Footer Card
+   ========================================================================= */
+
+.few-industry-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.few-industry-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 9px 32px 9px 14px;
+  border-radius: 10px;
+  border: 1px solid #c6c0b4;
+  background: #fffdf8;
+  color: #28233f;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.few-industry-select:hover,
+.few-industry-select:focus-visible {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(100, 80, 213, 0.12);
+  outline: none;
+}
+
+.select-chevron {
+  position: absolute;
+  right: 11px;
+  pointer-events: none;
+  font-size: 11px;
+  color: var(--purple);
+}
+
+.few-service-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Few.io AnimatedObject scroll-reveal motion */
+.few-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.few-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Few.io Scroll-Scaled Footer Card + Infinite Marquee Band */
+.contact.few-footer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 28px;
+  overflow: hidden;
+  transform-origin: center bottom;
+  transition: transform 140ms linear;
+}
+
+.few-footer-marquee {
+  margin: -18px -55px 4px;
+  padding: 13px 0;
+  background: rgba(18, 12, 38, 0.28);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.few-marquee-track {
+  display: inline-flex;
+  gap: 18px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--lime);
+  animation: fewFooterMarquee 22s linear infinite;
+}
+
+.few-footer-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  width: 100%;
+}
+
+@keyframes fewFooterMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 700px) {
+  .few-service-tabs {
+    display: none;
+  }
+
+  .few-industry-select-wrap,
+  .few-industry-select {
+    width: 100%;
+  }
+
+  .few-footer-marquee {
+    margin: -12px -25px 0;
+  }
+
+  .few-footer-grid {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* =========================================================================
+   FEW.IO FULL DARK ATMOSPHERIC THEME (#0c0414 + Ambient Blobs + Mint #02c39d)
+   & Typography Declutter / Positioning Alignment
+   ========================================================================= */
+
+:root {
+  --bg: #0c0414;
+  --ink: #f5f3fb;
+  --muted: #9a94ad;
+  --line: rgba(255, 255, 255, 0.11);
+  --purple: #8b5cf6;
+  --lime: #02c39d;
+  --mint: #02c39d;
+}
+
+body {
+  background-color: #0c0414;
+  color: #f5f3fb;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Fixed Ambient Glow Blobs behind transparent glass surfaces (exact few.io feel) */
+.few-ambient-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, #1b0a33 0%, #0c0414 68%);
+}
+
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.55;
+}
+
+.ambient-blob.blob-purple {
+  top: -120px;
+  left: 18%;
+  width: 680px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(114, 47, 255, 0.52) 0%, rgba(12, 4, 20, 0) 72%);
+}
+
+.ambient-blob.blob-mint {
+  top: 42%;
+  left: -10%;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(2, 195, 157, 0.34) 0%, rgba(12, 4, 20, 0) 72%);
+}
+
+.ambient-blob.blob-magenta {
+  bottom: 8%;
+  right: -8%;
+  width: 680px;
+  height: 680px;
+  background: radial-gradient(circle, rgba(217, 45, 138, 0.28) 0%, rgba(110, 40, 220, 0.2) 48%, rgba(12, 4, 20, 0) 75%);
+}
+
+/* 1. Top Floating Dark Glass Navbar (exact few.io/launches bar) */
+header,
+header.few-glass-header,
+header.is-scrolled {
+  position: sticky;
+  top: 16px;
+  z-index: 120;
+  width: min(1240px, calc(100% - 48px));
+  height: 72px;
+  min-height: 72px;
+  margin: 16px auto 0;
+  padding: 0 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(14, 7, 26, 0.68);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.42);
+}
+
+.brand {
+  gap: 12px;
+}
+
+.brand-avatar {
+  width: 38px;
+  height: 38px;
+  border-color: rgba(2, 195, 157, 0.45);
+  background: #181026;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.brand-signature {
+  font-size: 32px;
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(2, 195, 157, 0.32);
+  margin-bottom: 0;
+}
+
+.brand:hover .brand-signature {
+  color: #02c39d;
+}
+
+.brand-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 243, 251, 0.55);
+}
+
+.brand-text small {
+  display: none;
+}
+
+.few-launches-quick,
+.few-header-actions .nav-git {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 11.5px;
+  letter-spacing: 0.15em;
+}
+
+.few-launches-quick:hover,
+.few-header-actions .nav-git:hover {
+  background: rgba(2, 195, 157, 0.16);
+  border-color: #02c39d;
+  color: #02c39d;
+}
+
+.few-menu-toggle {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.few-menu-toggle .menu-bar {
+  background: #ffffff;
+}
+
+.few-menu-toggle:hover,
+.few-menu-toggle:focus-visible {
+  background: rgba(2, 195, 157, 0.14);
+  border-color: #02c39d;
+}
+
+.few-menu-toggle:hover .menu-bar {
+  background: #02c39d;
+}
+
+/* 2. Hero & Eyebrows in Few.io Dark Glass Style */
+.eyebrow {
+  color: #02c39d !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.dot,
+.tiny-dot,
+.ticker b {
+  background: #02c39d;
+}
+
+.hero h1,
+h1,
+h2,
+h3 {
+  color: #ffffff;
+}
+
+.hero h1 > span {
+  color: #02c39d;
+}
+
+.hero .intro,
+.section-head > p,
+.repo-intro,
+.about-lead,
+.about-title > p,
+.about-row p {
+  color: #b5afc7;
+}
+
+.button.primary {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  border: 1px solid rgba(196, 162, 255, 0.35);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.32);
+}
+
+.button.primary:hover {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  border-color: #02c39d;
+}
+
+.text-link {
+  color: #02c39d;
+}
+
+.roleline > span {
+  color: #8f89a3;
+}
+
+.roleline strong {
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #e9dfff;
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+/* Hero FIG.01 Concept Card -> Dark Frosted Glass */
+.hero-art {
+  background-color: rgba(20, 12, 36, 0.65);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 0.8px, transparent 0.8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.art-top,
+.art-bottom {
+  color: #8e87a4;
+}
+
+.orbit {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.core {
+  background: linear-gradient(135deg, #7c3aed, #4c1d95);
+  box-shadow: 12px 16px 0 rgba(2, 195, 157, 0.22);
+}
+
+.art-label {
+  background: rgba(24, 15, 42, 0.84);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f5f3fb;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.art-label > span {
+  color: #02c39d;
+}
+
+.art-label small {
+  color: #a7a0ba;
+}
+
+.label-c {
+  background: rgba(2, 195, 157, 0.16);
+  border-color: rgba(2, 195, 157, 0.45);
+}
+
+.ticker {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ticker > .wrap {
+  color: #a9a3bc;
+}
+
+/* 3. AIRI Feature Banner -> Translucent Dark Glass */
+.airi-feature {
+  background: rgba(22, 13, 38, 0.66);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.airi-feature-image {
+  background: rgba(15, 9, 28, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.airi-system-panel {
+  background: rgba(26, 17, 46, 0.88);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.airi-system-heading {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.airi-system-heading strong,
+.airi-system-node strong {
+  color: #f3f0ff;
+}
+
+.airi-system-heading small,
+.airi-system-node small {
+  color: #9c95b0;
+}
+
+.airi-feature p {
+  color: #bcb6ce;
+}
+
+.airi-feature .tags span {
+  background: rgba(196, 102, 255, 0.1);
+  border-color: rgba(196, 102, 255, 0.25);
+  color: #e2d4ff;
+}
+
+.airi-site {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f5f3fb;
+}
+
+.airi-site:hover {
+  border-color: #02c39d;
+  color: #02c39d;
+}
+
+/* 4. Evidence Strip & Featured Cases -> Dark Translucent Glass */
+.featured-index a {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #d6d1e6;
+}
+
+.featured-index a:hover {
+  background: #02c39d;
+  border-color: #02c39d;
+  color: #0c0414;
+}
+
+.evidence-strip {
+  background: rgba(22, 13, 38, 0.62);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.evidence-stat {
+  border-top-color: #02c39d !important;
+}
+
+.stat-kicker {
+  color: #02c39d;
+}
+
+.evidence-stat strong {
+  color: #ffffff !important;
+}
+
+.evidence-stat small {
+  color: #aba5be;
+}
+
+.featured-case {
+  background: rgba(20, 12, 35, 0.68);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42);
+}
+
+.case-folder-bar,
+.career-case .case-folder-bar {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.folder-tab,
+.career-case .folder-tab {
+  color: #02c39d;
+}
+
+.folder-meta,
+.career-case .folder-meta {
+  color: #a8a2bc;
+}
+
+.featured-context,
+.career-case .featured-context {
+  color: #02c39d;
+}
+
+.featured-context span {
+  color: #b1abc4;
+}
+
+.featured-summary {
+  color: #c2bdd3;
+}
+
+.case-highlights {
+  background: rgba(12, 6, 24, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbc6dc;
+}
+
+.case-highlights strong {
+  color: #ffffff;
+}
+
+.case-highlights li::before,
+.career-case .case-highlights li::before {
+  color: #02c39d;
+}
+
+.case-highlights code,
+.career-case .case-highlights code,
+.case-narrative code {
+  background: rgba(139, 92, 246, 0.18);
+  color: #dcd0ff;
+}
+
+.featured-actions .text-link,
+.career-case .featured-actions .text-link {
+  color: #02c39d;
+}
+
+.commerce-visual,
+.career-visual {
+  background: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.22) 0%, rgba(2, 195, 157, 0.12) 60%, rgba(15, 8, 28, 0.6) 100%);
+}
+
+.commerce-board {
+  background: rgba(22, 14, 38, 0.92);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.sample-product {
+  background: radial-gradient(ellipse at 50% 80%, rgba(124, 58, 237, 0.28), rgba(20, 12, 36, 0.9));
+}
+
+.sample-tag {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f3f0ff;
+}
+
+.sample-product small {
+  color: #b8b2cc;
+}
+
+.commerce-states li {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.commerce-states strong {
+  color: #ffffff;
+}
+
+.commerce-states small {
+  color: #aba4bf;
+}
+
+.visual-caption,
+.career-visual figcaption {
+  color: #a6a0b8;
+}
+
+/* 5. Exact Few.io /launches Filter Bar & Project Rows (Clean & Decluttered!) */
+.few-filter-bar {
+  background: rgba(15, 8, 28, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+
+.few-industry-select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.few-industry-select:hover,
+.few-industry-select:focus-visible {
+  border-color: #02c39d;
+}
+
+.select-chevron {
+  color: #ffffff;
+}
+
+.filter-pill {
+  color: rgba(245, 243, 251, 0.72);
+  font-weight: 600;
+}
+
+.filter-pill span {
+  display: none;
+}
+
+.filter-pill:hover,
+.filter-pill:focus-visible {
+  background: transparent;
+  color: #ffffff;
+}
+
+.filter-pill.is-active {
+  background: transparent;
+  border-color: transparent;
+  color: #02c39d;
+  font-weight: 700;
+}
+
+.tabs {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.tabs button {
+  color: #a9a3bc;
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+.tabs button[aria-selected="true"] {
+  background: rgba(2, 195, 157, 0.2);
+  color: #02c39d;
+}
+
+#view-note {
+  display: none;
+}
+
+.projects.few-launches-list {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.project-card.few-launch-row {
+  grid-template-columns: 340px minmax(0, 1fr) 44px;
+  gap: 28px 40px;
+  padding: 34px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.few-launch-row .row-glow {
+  background: radial-gradient(
+    560px circle at var(--glow-x, 55%) var(--glow-y, 50%),
+    rgba(255, 0, 141, 0.22) 0%,
+    rgba(110, 40, 230, 0.22) 38%,
+    rgba(2, 195, 157, 0.12) 65%,
+    rgba(12, 4, 20, 0) 85%
+  );
+}
+
+.few-launch-row:hover,
+.few-launch-row:focus-within {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.few-launch-row .project-media {
+  height: 192px;
+  padding: 0;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #160e26 !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+}
+
+.few-launch-row .project-media img {
+  border-radius: 20px;
+}
+
+/* Declutter row typography to match few.io/launches: Giant Title + Category + Purple Pills */
+.few-launch-row .project-topline {
+  margin-bottom: 6px;
+  font-size: 10.5px;
+  color: #02c39d;
+}
+
+.few-launch-row .case-number {
+  background: rgba(2, 195, 157, 0.15);
+  color: #02c39d;
+}
+
+.few-launch-row .project-topline b {
+  color: #9e98b3;
+  font-weight: 500;
+}
+
+.few-row-heading {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.few-launch-row h3 {
+  font-size: clamp(32px, 3.8vw, 52px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.few-launch-row:hover h3,
+.few-launch-row:focus-within h3 {
+  color: #ffffff;
+  transform: translateY(-3px);
+}
+
+.few-launch-row .project-sub {
+  display: none;
+}
+
+.few-launch-row .project-copy {
+  margin: 6px 0 14px;
+  font-size: 14px;
+  color: #a6a0b9;
+  max-width: 62ch;
+}
+
+/* Exact Few.io Purple Translucent Service Pills */
+.few-launch-row .tags {
+  margin: 0;
+  gap: 8px;
+}
+
+.few-launch-row .tags span {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(196, 102, 255, 0.1);
+  border: 1px solid rgba(136, 0, 255, 0.25);
+  color: #d7c9f5;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.few-launch-row:hover .tags span {
+  background: rgba(196, 102, 255, 0.18);
+  border-color: rgba(196, 102, 255, 0.45);
+  color: #ffffff;
+}
+
+/* Hide noisy 4-button descriptions at rest; show clean subtle inline links on hover */
+.few-launch-row .project-links {
+  margin-top: 12px;
+  padding-top: 0;
+  border-top: 0;
+  gap: 8px;
+}
+
+.few-launch-row .project-links > a {
+  min-height: 32px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e0dcf0;
+  font-size: 12px;
+}
+
+.few-launch-row .project-links > a.case-action {
+  background: rgba(2, 195, 157, 0.16);
+  border-color: rgba(2, 195, 157, 0.45);
+  color: #02c39d;
+}
+
+.few-launch-row .project-links > a:hover {
+  background: #02c39d;
+  border-color: #02c39d;
+  color: #0c0414;
+}
+
+/* Hide verbose sub-captions inside row action pills so typography is clean */
+.few-launch-row .project-links small {
+  display: none;
+}
+
+.few-row-arrow {
+  background: transparent;
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.few-launch-row:hover .few-row-arrow,
+.few-launch-row:focus-within .few-row-arrow {
+  background: rgba(2, 195, 157, 0.16);
+  border-color: #02c39d;
+  color: #02c39d;
+}
+
+/* Mint green circular VIEW WORK cursor badge matching few.io */
+.few-cursor-badge {
+  background: #86efac;
+  border: 0;
+  color: #0c0414;
+  box-shadow: 0 12px 32px rgba(2, 195, 157, 0.35);
+}
+
+/* 6. Contributions, Accordion, Evidence, About & Repos in Dark Glass */
+.contribution-card,
+.evidence-grid article,
+.repo-item {
+  background: rgba(22, 13, 38, 0.62);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.contribution-top,
+.contribution-card > p,
+.contribution-evidence span,
+.evidence-grid p,
+.repo-item p {
+  color: #b5afc7;
+}
+
+.contribution-evidence strong,
+.repo-item h3 {
+  color: #ffffff;
+}
+
+.pr-status.merged {
+  background: rgba(2, 195, 157, 0.18);
+  color: #34d399;
+}
+
+.pr-status.pending {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+.repo-meta {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.repo-meta > span {
+  background: rgba(196, 102, 255, 0.12);
+  color: #d8b4fe;
+}
+
+.repo-meta a {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #02c39d;
+}
+
+.approach {
+  background: rgba(18, 10, 32, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.decision-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.decision-item[open] {
+  background: rgba(26, 16, 46, 0.76);
+  border-color: rgba(2, 195, 157, 0.45);
+}
+
+.decision-title h3 {
+  color: #ffffff;
+}
+
+.decision-title .mini-tag {
+  background: rgba(196, 102, 255, 0.14);
+  color: #d8b4fe;
+}
+
+.decision-body {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.decision-body p {
+  color: #bcb6ce;
+}
+
+.decision-body .decision-proof {
+  background: rgba(12, 6, 24, 0.65);
+  border-left-color: #02c39d;
+  color: #dfdcf0;
+}
+
+.few-toggle-circle {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.decision-item[open] .few-toggle-circle {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #0c0414;
+}
+
+/* 7. Case Detail Pages in Dark Glass (25/75 Sticky Rail + Tables + Next Launch) */
+.case-subtitle,
+.case-narrative p,
+.source-note {
+  color: #b8b2cc;
+}
+
+.case-facts div small {
+  color: #02c39d;
+}
+
+.case-facts div p {
+  color: #f3f0ff;
+}
+
+.focused-case .case-flow li {
+  background: rgba(24, 15, 42, 0.72);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.focused-case .case-flow span {
+  color: #b1abc4;
+}
+
+.case-layout aside.few-case-rail {
+  background: rgba(20, 12, 35, 0.72);
+  backdrop-filter: blur(14px);
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.rail-meta-block {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.rail-meta-item span,
+.rail-kicker {
+  color: #02c39d;
+}
+
+.rail-meta-item strong {
+  color: #f3f0ff;
+}
+
+.rail-toc-group a {
+  color: rgba(245, 243, 251, 0.48);
+}
+
+.rail-toc-group a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rail-toc-group a.is-active {
+  color: #ffffff;
+  background: rgba(2, 195, 157, 0.14);
+}
+
+.rail-toc-group a.is-active::before {
+  background: #02c39d;
+  box-shadow: 0 0 0 3px rgba(2, 195, 157, 0.25);
+}
+
+.case-narrative .journey {
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #e4d9ff;
+}
+
+.focused-case .case-checks li {
+  background: rgba(22, 13, 38, 0.72);
+  border-left-color: #02c39d;
+  color: #cfcadd;
+}
+
+.focused-case .case-checks strong {
+  color: #ffffff;
+}
+
+.tradeoff-table-wrap {
+  background: rgba(18, 11, 32, 0.82);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.tradeoff-table caption {
+  background: rgba(139, 92, 246, 0.16);
+  color: #e9dfff;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.tradeoff-table th {
+  background: rgba(255, 255, 255, 0.05);
+  color: #02c39d;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.tradeoff-table td {
+  color: #cfcadd;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.community-quote {
+  margin: 20px 0;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border-left: 3px solid #02c39d;
+  background: rgba(2, 195, 157, 0.08);
+  color: #f3f0ff;
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+.community-quote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 12.5px;
+  color: #02c39d;
+}
+
+.few-next-launch {
+  background: radial-gradient(circle at 80% 30%, rgba(217, 45, 138, 0.25) 0%, rgba(124, 58, 237, 0.25) 45%, rgba(20, 12, 36, 0.9) 100%);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.next-launch-eyebrow {
+  color: #02c39d;
+}
+
+.next-launch-title {
+  color: #ffffff;
+}
+
+.next-launch-title:hover {
+  color: #02c39d;
+}
+
+.next-launch-sub {
+  color: #bcb6ce;
+}
+
+.footer-brand {
+  color: #ffffff;
+}

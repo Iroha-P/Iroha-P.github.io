@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../casebook.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <a class="skip" href="#case-content">跳到案例内容</a>
@@ -46,13 +46,22 @@
     </figure>
 
     <div class="case-layout">
-      <aside aria-label="此案例目录">
-        <a href="#scenario">01 平台痛点与角色</a>
-        <a href="#strategy">02 Prompt 即接入规范</a>
-        <a href="#experience">03 C 端异步体验与自愈</a>
-        <a href="#operations">04 透明代理与两阶段计费</a>
-        <a href="#decisions-matrix">05 六项关键设计取舍</a>
-        <a href="#validation">06 验收清单与评估指标</a>
+      <aside aria-label="此案例目录" class="few-case-rail">
+        <div class="rail-meta-block">
+          <div class="rail-meta-item"><span>CLIENT / ORG</span><strong>海艺互娱 · SeaMe</strong></div>
+          <div class="rail-meta-item"><span>MY ROLE</span><strong>大模型应用开发工程师（实习）</strong></div>
+          <div class="rail-meta-item"><span>SCOPE</span><strong>工具开发运维 · 880 行接入 Prompt 规范</strong></div>
+          <div class="rail-meta-item"><span>TECH &amp; BILLING</span><strong>FastAPI · WebSocket · httpx Proxy · SQLite</strong></div>
+        </div>
+        <div class="rail-toc-group">
+          <span class="rail-kicker">ON THIS PAGE</span>
+          <a href="#scenario" class="is-active">01 平台痛点与角色</a>
+          <a href="#strategy">02 Prompt 即接入规范</a>
+          <a href="#experience">03 C 端异步体验与自愈</a>
+          <a href="#operations">04 透明代理与两阶段计费</a>
+          <a href="#decisions-matrix">05 六项关键设计取舍</a>
+          <a href="#validation">06 验收清单与评估指标</a>
+        </div>
       </aside>
       <div class="case-narrative">
         <section id="scenario">
@@ -175,15 +184,22 @@
       </div>
     </div>
 
-    <nav class="featured-case-nav" aria-label="更多案例">
-      <a class="button primary" href="careerpilot.html">阅读下一篇：职航 CareerPilot 案例 →</a>
-      <a class="button airi-site" href="https://www.seame.ai/zh/" target="_blank" rel="noopener">访问 SeaMe 市集 ↗</a>
-      <a class="text-link" href="../index.html#featured">← 返回精选案例</a>
-    </nav>
+    <section class="few-next-launch" aria-label="下一个项目" data-cursor-label="NEXT CASE">
+      <div class="next-launch-glow" aria-hidden="true"></div>
+      <span class="next-launch-eyebrow">Next Launch · 下一个主推案例</span>
+      <a class="next-launch-title" href="careerpilot.html">职航 CareerPilot <span aria-hidden="true">→</span></a>
+      <p class="next-launch-sub">三人团队负责人 · 负责除评测外全部 Agent 状态流与工具编排 · 20 条固定回归用例</p>
+      <div class="featured-case-nav" aria-label="更多案例">
+        <a class="button primary" href="careerpilot.html">阅读 CareerPilot 案例 →</a>
+        <a class="button airi-site" href="https://www.seame.ai/zh/" target="_blank" rel="noopener">访问 SeaMe 市集 ↗</a>
+        <a class="text-link" href="../index.html#featured">← 返回精选案例</a>
+      </div>
+    </section>
   </main>
   <footer class="wrap">
     <a href="../index.html">Wednesday / Iroha-P</a>
     <a href="#case-content">回到案例开头 ↑</a>
   </footer>
+  <script src="../portfolio.js" defer></script>
 </body>
 </html>
