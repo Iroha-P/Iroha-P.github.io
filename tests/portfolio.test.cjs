@@ -36,8 +36,40 @@ test('the homepage explicitly includes LLM applications, Agent and multimodal wo
   assert.match(html, /Agent、RAG 与多模态/);
 });
 
-test('GradLoop leads the casebook without removing any existing project', () => {
-  const titles = Array.from(html.matchAll(/<h3>(.*?)<\/h3>/g), (match) => match[1]);
+test('the AIRI feature precedes the two featured case studies on the homepage', () => {
+  const airi = html.indexOf('id="airi"');
+  const featuredStart = html.indexOf('id="featured"');
+  assert.ok(airi >= 0 && airi < featuredStart);
+  assert.match(html.slice(airi, featuredStart), /assets\/hero-airi-character-original.png/);
+  assert.match(html, /href="#featured">探索我的作品/);
+  const featured = html.slice(html.indexOf('id="featured"'), html.indexOf('id="work"'));
+  const titles = Array.from(featured.matchAll(/<h3>(.*?)<\/h3>/g), (match) => match[1].replace(/<[^>]+>/g, ''));
+  assert.deepEqual(titles, ['SeaMe AI 电商工具平台', '职航 CareerPilot']);
+  for (const filename of ['ecommerce-ai-tools', 'careerpilot']) {
+    const location = `cases/${filename}.html`;
+    assert.ok(featured.includes(`href="${location}"`));
+    const localCase = fs.readFileSync(path.join(root, location), 'utf8');
+    assert.ok(localCase.includes('href="../index.html#featured"'));
+  }
+  const publicSiteLink = 'href="https://www.seame.ai/zh/"';
+  const seaMe = fs.readFileSync(path.join(root, 'cases/ecommerce-ai-tools.html'), 'utf8');
+  assert.ok(featured.includes(publicSiteLink));
+  assert.ok(seaMe.includes(publicSiteLink));
+});
+
+test('the version page exposes only the current portfolio baseline', () => {
+  assert.match(html, /href="history\/">版本历史<\/a>/);
+  const historyPath = path.join(root, 'history');
+  const history = fs.readFileSync(path.join(historyPath, 'index.html'), 'utf8');
+  assert.match(history, /AI 产品经理作品集（当前版本）/);
+  assert.match(history, /href="\.\.\/">打开当前首页/);
+  assert.equal((history.match(/<article>/g) || []).length, 1);
+  assert.equal(fs.readdirSync(historyPath, { withFileTypes: true }).some(entry => entry.isDirectory()), false);
+});
+
+test('GradLoop leads the additional projects without removing any existing project', () => {
+  const additionalProjects = html.slice(html.indexOf('id="work"'), html.indexOf('id="contributions"'));
+  const titles = Array.from(additionalProjects.matchAll(/<h3>(.*?)<\/h3>/g), (match) => match[1]);
   assert.deepEqual(titles.slice(0, 6), [
     'GradLoop', 'MultiModal-QC', 'AIRI Memory Agent', 'MiniBox', 'Code Island', 'Image2 Local Studio',
   ]);

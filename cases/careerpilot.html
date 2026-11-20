@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f3ec">
+  <title>职航 CareerPilot · Agent 编排与回归评测案例 | Wednesday / Iroha-P</title>
+  <meta name="description" content="基于经历证据的 C 端求职训练 Agent。本人作为三人团队负责人，完成除评测外的全部 Agent 状态流与工具编排，配合 20 条固定合成用例回归迭代。">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../casebook.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <a class="skip" href="#case-content">跳到案例内容</a>
+  <header>
+    <a class="brand" href="../index.html"><img class="brand-avatar" src="https://avatars.githubusercontent.com/u/247766815?v=4" alt="Iroha-P 头像" width="48" height="48"><span>Wednesday / Iroha-P<small>AI PRODUCT CASEBOOK</small></span></a>
+    <a class="nav-git" href="../index.html#featured">← 返回精选案例</a>
+  </header>
+  <main id="case-content" class="wrap case-page focused-case">
+    <p class="eyebrow">CASE 02 · TEAM LEAD / AGENT ORCHESTRATION &amp; EVAL</p>
+    <h1>职航 CareerPilot</h1>
+    <p class="case-subtitle">把目标岗位、候选人经历证据、模拟追问与复盘放进同一可验证状态流。我作为团队负责人主导产品定义并完成除评测外的整个 Agent 编排。</p>
+
+    <div class="case-facts case-facts-4">
+      <div><small>我的角色</small><p>三人团队负责人（产品定义 · 答辩 · 演示）</p></div>
+      <div><small>个人核心开发与策略</small><p>负责除评测外的全部 Agent 状态图、Prompt 与工具编排</p></div>
+      <div><small>回归验证方法</small><p>20 条固定合成用例复测 4 类核心 Badcase</p></div>
+      <div><small>竞赛结果</small><p>星火杯全球总决赛二等奖</p></div>
+    </div>
+
+    <figure class="case-figure">
+      <div class="visual-window-bar">
+        <span>素材归属说明：自研 GradLoop 证据约束检索底座（公开合成资料演示）</span>
+        <span>CareerPilot 构建于该底座之上</span>
+      </div>
+      <img class="case-cover" src="../assets/gradloop-public-qa.png" alt="GradLoop 底座展示问答和资料来源的公开演示界面" width="1440" height="1024">
+      <figcaption class="source-note">图 1：GradLoop 底座公开合成演示界面。CareerPilot 复用该底座的证据约束检索、跨请求状态持久化与人工确认中断（interrupt / resume）机制，在业务层编排求职诊断与模拟面试流程。</figcaption>
+    </figure>
+
+    <div class="case-layout">
+      <aside aria-label="此案例目录" class="few-case-rail">
+        <div class="rail-meta-block">
+          <div class="rail-meta-item"><span>MY ROLE</span><strong>三人团队负责人（方案 · 答辩）</strong></div>
+          <div class="rail-meta-item"><span>OWNED MODULE</span><strong>除评测外全部 Agent 编排</strong></div>
+          <div class="rail-meta-item"><span>EVALUATION</span><strong>20 条固定合成回归用例</strong></div>
+          <div class="rail-meta-item"><span>OUTCOME</span><strong>星火杯全球总决赛二等奖</strong></div>
+        </div>
+        <div class="rail-toc-group">
+          <span class="rail-kicker">ON THIS PAGE</span>
+          <a href="#scenario" class="is-active">01 用户痛点与链路</a>
+          <a href="#orchestration">02 我的 Agent 编排设计</a>
+          <a href="#decision">03 关键产品取舍</a>
+          <a href="#evaluation">04 20 条固定回归评测</a>
+        </div>
+      </aside>
+      <div class="case-narrative">
+        <section id="scenario">
+          <span class="eyebrow">01 / USER PROBLEM &amp; JOURNEY</span>
+          <h2>通用聊天模型给得出「八股题」，但帮不了候选人应对基于自身经历的深挖追问</h2>
+          <p>求职者在准备目标岗位（如 AI 产品经理或大模型研发）时，核心痛点不是缺少泛化题库，而是<strong>不知道自己手头的项目材料能支撑哪些岗位要求、哪些地方会被面试官追问穿帮</strong>。如果直接让通用大模型润色简历或出题，极易出现「顺着岗位 JD 替候选人编造未做过的职责和量化指标」的问题。</p>
+          <p>我们将求职准备收束为一条受证据约束的五步连续状态流：</p>
+          <p class="journey">01 岗位方向诊断 → 02 经历证据匹配（标记已支撑 / 待补） → 03 针对性能力补强 → 04 单轮聚焦面试追问训练 → 05 投递与答题复盘</p>
+        </section>
+
+        <section id="orchestration">
+          <span class="eyebrow">02 / MY AGENT ORCHESTRATION</span>
+          <h2>个人贡献：负责除评测外的全部 Agent 状态流与工具边界编排</h2>
+          <p>在三人团队中，我担任项目负责人，统筹整体方案与答辩演示，并<strong>独立完成除评测模块外的整个 Agent 编排设计</strong>。为了解决单次 Prompt 长对话容易丢失岗位目标、越界扩写和乱调工具的问题，我在编排层做了三项结构化设计：</p>
+          <ul class="case-checks">
+            <li><strong>切分「LLM 生成」与「确定性规则工具」边界：</strong>大模型专注于意图理解、岗位—经历差距分析、追问组织与自然语言反馈；而<strong>评分计算、训练计划生成与落库、确认状态校验</strong>全部收归确定性规则工具执行，防止模型口头承诺修改却未落盘。</li>
+            <li><strong>强制证据对齐与「待补」标记（Anti-Hallucination）：</strong>在经历匹配节点加入证据核验约束——凡是候选人材料中没有原文支撑的能力项或量化结果，Agent 必须显式标记为<code>「待补证据」</code>并转为追问问题（例如追问本人具体如何执行），严禁替用户凭空捏造职责或数据。</li>
+            <li><strong>单轮单题节律与人工确认门控（Human-in-the-Loop）：</strong>模拟面试节点强制每次只抛出一道核心追问，根据候选人回答深度决定继续深挖还是切换下一题；当涉及更新求职计划或写入外部状态时，状态图触发中断（<code>interrupt</code>）等待用户显式确认后再继续执行。</li>
+          </ul>
+        </section>
+
+        <section id="decision">
+          <span class="eyebrow">03 / PRODUCT TRADEOFFS</span>
+          <h2>先用文本 MVP 跑通「证据—追问—反馈」闭环，再规划多模态输入</h2>
+          <p>竞赛初期团队曾讨论是否一上来就接入实时语音面试和简历排版渲染。我做出的产品取舍是<strong>第一阶段坚定聚焦文本 MVP</strong>：</p>
+          <ul class="case-checks">
+            <li><strong>为什么先砍掉外围多模态包装：</strong>求职训练的核心价值在于「追问是否切中经历薄弱点、反馈是否诚实可操作」。如果文本链路上的方向漂移和经历扩写没解决，加上语音只会让错误更难排查。</li>
+            <li><strong>与 GradLoop 底座的复用关系：</strong>底层直接复用自研 <a class="inline-evidence" href="gradloop.html">GradLoop 底座 →</a> 的 BM25 / 混合检索、SQLite 跨请求状态与 SSE 流式反馈，将团队精力集中在求职领域的 Agent 路由、Prompt 约束与回归验证上。</li>
+          </ul>
+        </section>
+
+        <section id="evaluation">
+          <span class="eyebrow">04 / REGRESSION EVALUATION</span>
+          <h2>用 20 条固定合成用例复测 4 类策略 Badcase</h2>
+          <p>为了避免「改好一个 Prompt 又弄坏另一个场景」，团队构建了 <strong>20 条固定合成回归用例</strong>，专门针对 Agent 编排中最容易出现的 4 类策略退化进行复测：</p>
+          <div class="tradeoff-table-wrap" role="region" aria-label="CareerPilot 20 条合成回归用例覆盖维度" tabindex="0">
+            <table class="tradeoff-table">
+              <caption>CareerPilot 回归评测重点监控的 4 类 Agent 策略问题与判定口径</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Badcase 类型</th>
+                  <th scope="col">典型合成输入场景</th>
+                  <th scope="col">修改前的失败表现</th>
+                  <th scope="col">编排优化与复测通过口径</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. 经历无中生有扩写</strong></td>
+                  <td>输入仅提供「协助整理测试记录」，目标岗位要求独立负责评测体系</td>
+                  <td>模型自动脑补「主导构建自动化评测平台，提升效率 40%」</td>
+                  <td>禁止编造职责与百分比；输出必须将该项标为<strong>「待补」</strong>，并追问本人「如何记录、按什么维度归类问题」</td>
+                </tr>
+                <tr>
+                  <td><strong>2. 岗位方向漂移</strong></td>
+                  <td>多轮对话后候选人聊起无关技术细节</td>
+                  <td>Agent 顺着闲聊偏离目标岗位核心考察维度</td>
+                  <td>状态节点持续注入目标岗位 Anchor，偏航后在下一轮追问中拉回待验证的能力项</td>
+                </tr>
+                <tr>
+                  <td><strong>3. 单轮抛出多道题</strong></td>
+                  <td>进入模拟面试阶段，候选人回答简短</td>
+                  <td>模型一次连问 3～4 个大问题，候选人无法逐一作答</td>
+                  <td>输出后处理与 Prompt 双重约束单轮仅保留 1 个主追问，追问完再进入下一节点</td>
+                </tr>
+                <tr>
+                  <td><strong>4. 绕过人工确认</strong></td>
+                  <td>用户模糊表达「差不多可以改计划了」</td>
+                  <td>Agent 未经确认直接覆盖原有训练计划</td>
+                  <td>写操作前置确认校验规则，未收到明确确认指令前保持待确认挂起状态</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="source-note">评测边界说明：上述 20 条用例为竞赛阶段固定合成输入与策略复测记录，用于验证 Agent 编排与 Prompt 约束的回归稳定性，不代表大样本真实求职者就业转化率实验。</p>
+        </section>
+      </div>
+    </div>
+
+    <nav class="featured-case-nav" aria-label="演示与案例">
+      <a class="button primary" href="airi-memory.html">阅读下一篇：AIRI 长期记忆案例 →</a>
+      <a class="button airi-site" href="gradloop.html">查看 GradLoop 检索与状态底座 →</a>
+      <a class="text-link" href="../demo/gradloop/" target="_blank" rel="noopener">体验底座公开合成演示 ↗</a>
+      <a class="text-link" href="../index.html#featured">← 返回精选案例</a>
+    </nav>
+  </main>
+  <footer class="wrap">
+    <a href="../index.html">Wednesday / Iroha-P</a>
+    <a href="#case-content">回到案例开头 ↑</a>
+  </footer>
+</body>
+</html>

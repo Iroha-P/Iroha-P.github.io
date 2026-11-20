@@ -1,0 +1,83 @@
+.archive-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 16px;
+  padding: 9px 16px;
+  background: #e6dff7;
+  color: #372967;
+  font-size: 13px;
+}
+
+.archive-banner a {
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.history-page {
+  max-width: 960px;
+  padding: clamp(48px, 8vw, 96px) 0 90px;
+}
+
+.history-page h1 {
+  margin: 12px 0 0;
+  font-size: clamp(40px, 6.5vw, 72px);
+  letter-spacing: -.04em;
+}
+
+.history-page > p,
+.history-list p {
+  color: #51554b;
+  line-height: 1.75;
+}
+
+.history-list {
+  margin-top: 36px;
+  border-top: 1px solid var(--line);
+}
+
+.history-list article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px 32px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.history-meta {
+  min-width: 0;
+}
+
+.history-list h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -.025em;
+}
+
+.history-list p {
+  margin: 8px 0 10px;
+  max-width: 62ch;
+}
+
+.history-list .button {
+  white-space: nowrap;
+  justify-self: end;
+}
+
+@media (max-width: 680px) {
+  .history-header .nav-git {
+    display: inline-flex;
+  }
+
+  .history-list article {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .history-list .button {
+    justify-self: start;
+  }
+}

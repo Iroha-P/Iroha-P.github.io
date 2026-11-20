@@ -17,10 +17,10 @@ test('GradLoop has an independent static project page with its verified full nam
   assert.match(html, /lang="zh-CN"/);
 });
 
-test('homepage links to the detail page without replacing its existing demo or repositories', () => {
+test('homepage links to the detail page, current demo and source repositories', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   assert.match(html, /href="projects\/gradloop\/"/);
-  assert.match(html, /href="https:\/\/gradloop-ragsdk-omni\.pages\.dev\/"/);
+  assert.match(html, /href="demo\/gradloop\/"/);
   assert.match(html, /href="https:\/\/github\.com\/Iroha-P\/gradloop-ragsdk-omni-training"/);
 });
 
@@ -44,7 +44,7 @@ test('external links open safely and demo/source actions are real links', () => 
     if (/target="_blank"/.test(attributes)) assert.match(attributes, /rel="[^"]*noreferrer/);
     assert.doesNotMatch(attributes, /href="(?:javascript:|#")/);
   }
-  assert.match(html, /href="https:\/\/gradloop-ragsdk-omni\.pages\.dev\/"[^>]*>[\s\S]*?体验公开 Demo/);
+  assert.match(html, /href="\.\.\/\.\.\/demo\/gradloop\/"[^>]*>[\s\S]*?体验公开 Demo/);
 });
 
 test('the showcase distinguishes synthetic replay, model smoke and unverified runtime', () => {

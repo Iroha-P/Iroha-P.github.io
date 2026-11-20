@@ -36,15 +36,15 @@
           <h1 id="project-title"><span>GradLoop</span><span>研循</span></h1>
           <p class="hero-lead">证据约束的全模态学习与面试训练 Agent：把材料理解、来源证据与下一步练习，收束成可解释的学习闭环。</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://gradloop-ragsdk-omni.pages.dev/" target="_blank" rel="noreferrer">体验公开 Demo <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+            <a class="button primary" href="../../demo/gradloop/" target="_blank" rel="noreferrer">体验公开 Demo <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
             <a class="button secondary" href="#chapters">阅读技术全貌 <i class="ph ph-arrow-down" aria-hidden="true"></i></a>
           </div>
           <p class="hero-disclosure">公开入口使用合成素材；实时音视频仍待验收。</p>
         </div>
         <aside class="product-stage" aria-label="GradLoop 产品界面展示">
-          <div class="stage-head"><strong>Workspace Preview</strong><span>公开合成资料 · 静态界面</span></div>
+          <div class="stage-head"><strong>Workspace Preview</strong><span>公开合成回放 · 问答与引用</span></div>
           <a class="hero-preview" href="../../assets/gradloop-public-qa.png" data-preview aria-label="放大查看 GradLoop 公开合成问答界面">
-            <img src="../../assets/gradloop-public-qa.png" width="1440" height="1024" alt="真实公开合成问答界面：左侧学习工作区、中间资料问答、右侧证据检视与检索路径。画面尚未提交问题，不代表实时推理结果。" fetchpriority="high" />
+            <img src="../../assets/gradloop-public-qa.png" width="1440" height="1024" alt="真实公开合成问答界面：左侧学习工作区、中间资料问答、右侧证据检视与检索路径。已显示公开回放的回答与两条引用，第一条处于聚焦状态。" fetchpriority="high" />
             <span class="preview-affordance"><i class="ph ph-magnifying-glass-plus" aria-hidden="true"></i> 查看完整界面</span>
           </a>
           <dl class="stage-grid"><div><dt>本地工作流</dt><dd>BM25 / LangGraph</dd></div><div><dt>交互原则</dt><dd>来源证据 · 人工确认</dd></div></dl>
@@ -140,13 +140,13 @@
         <article><i class="ph ph-code source-icon" aria-hidden="true"></i><div><p class="section-index">APPLICATION</p><h3>GradLoop RAGSDK Omni</h3><p>检索、学习工作流、FastAPI/SSE 接口、人工确认与应用验证。</p><a class="text-link" href="https://github.com/Iroha-P/gradloop-ragsdk-omni" target="_blank" rel="noreferrer">查看应用仓库 <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a></div></article>
         <article><i class="ph ph-flask source-icon" aria-hidden="true"></i><div><p class="section-index">MODEL LAB</p><h3>GradLoop Training</h3><p>MiniCPM-o 模型实验、Ascend Base/LoRA smoke 与固定评测记录。</p><a class="text-link" href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training" target="_blank" rel="noreferrer">查看模型实验仓 <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a><a class="report-link" href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training/blob/0364c69f5a9116f927932867dc22d370bb696a87/docs/stage-b-npu-results-2026-07-29.md" target="_blank" rel="noreferrer">阅读固定评测报告</a></div></article>
       </div>
-      <div class="closing-inner"><div><h3>先看界面，再读实现。</h3><p>用公开合成材料了解产品闭环，不上传私人资料。</p></div><a class="button primary" href="https://gradloop-ragsdk-omni.pages.dev/" target="_blank" rel="noreferrer">体验公开 Demo <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a></div>
+      <div class="closing-inner"><div><h3>先看界面，再读实现。</h3><p>用公开合成材料了解产品闭环，不上传私人资料。</p></div><a class="button primary" href="../../demo/gradloop/" target="_blank" rel="noreferrer">体验公开 Demo <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a></div>
     </div></section>
     <nav class="wrap chapter-pagination" aria-label="章节翻页"><a href="models.html"><small>上一章 · 04 / 模型与评测</small><strong><i class="ph ph-arrow-left" aria-hidden="true"></i> 回看实验与验证</strong></a><a href="rag.html"><small>下一章 · 02 / 知识与 RAG</small><strong>资料如何变成证据 <i class="ph ph-arrow-right" aria-hidden="true"></i></strong></a></nav>
   </main>
 
   <footer class="site-footer"><div class="wrap footer"><a href="../../">返回 Wednesday / Iroha-P 作品集</a><span>GradLoop RAGSDK Omni · 研循</span><a href="#top">回到顶部 <i class="ph ph-arrow-up" aria-hidden="true"></i></a></div></footer>
-  <dialog class="preview-dialog" aria-labelledby="preview-title"><div class="preview-toolbar"><h2 id="preview-title">公开合成资料问答 · 真实界面</h2><button type="button" data-close-preview aria-label="关闭界面预览">关闭 <i class="ph ph-x" aria-hidden="true"></i></button></div><figure><img src="../../assets/gradloop-public-qa.png" width="1440" height="1024" alt="GradLoop 资料问答真实公开界面的完整截图，尚未提交问题。" loading="lazy" /><figcaption>这是静态界面截图，不是当前推理结果；只使用公开合成资料。</figcaption></figure></dialog>
+  <dialog class="preview-dialog" aria-labelledby="preview-title"><div class="preview-toolbar"><h2 id="preview-title">公开合成资料问答 · 真实界面</h2><button type="button" data-close-preview aria-label="关闭界面预览">关闭 <i class="ph ph-x" aria-hidden="true"></i></button></div><figure><img src="../../assets/gradloop-public-qa.png" width="1440" height="1024" alt="GradLoop 新版工作台实机截图，展示问答回放和选中引用。" loading="lazy" /><figcaption>新版工作台实机截图，展示公开合成资料问答与证据核验。</figcaption></figure></dialog>
   <script src="script.js"></script>
 </body>
 </html>

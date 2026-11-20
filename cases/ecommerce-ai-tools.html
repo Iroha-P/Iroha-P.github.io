@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f3ec">
+  <title>SeaMe AI 电商工具平台 · 产品与平台策略案例 | Wednesday / Iroha-P</title>
+  <meta name="description" content="SeaMe AI 电商工具平台实习复盘：用 880 行标准化接入 Prompt 统一 6 类生成工具 C 端交互，结合透明代理、两阶段计费与四级费用兜底实现平台级成本归因。">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../casebook.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <a class="skip" href="#case-content">跳到案例内容</a>
+  <header>
+    <a class="brand" href="../index.html"><img class="brand-avatar" src="https://avatars.githubusercontent.com/u/247766815?v=4" alt="Iroha-P 头像" width="48" height="48"><span>Wednesday / Iroha-P<small>AI PRODUCT CASEBOOK</small></span></a>
+    <a class="nav-git" href="../index.html#featured">← 返回精选案例</a>
+  </header>
+  <main id="case-content" class="wrap case-page focused-case">
+    <p class="eyebrow">CASE 01 · INTERNSHIP / AI PLATFORM &amp; PROMPT SPEC</p>
+    <h1>SeaMe AI <span class="nowrap">电商工具平台</span></h1>
+    <p class="case-subtitle">把 6 大类生成工具收进同一套 C 端操作心智，并用可执行接入 Prompt 与两阶段透明计费让平台知道「任务卡在哪、模型花了多少」。</p>
+
+    <div class="case-top-actions">
+      <a class="button primary" href="https://www.seame.ai/zh/" target="_blank" rel="noopener">访问 SeaMe 官方市集 <span aria-hidden="true">↗</span></a>
+      <a class="text-link case-public-link" href="#decisions-matrix">直接看 6 项平台设计取舍 <span aria-hidden="true">↓</span></a>
+    </div>
+
+    <div class="case-facts case-facts-4">
+      <div><small>实习背景与角色</small><p>海艺互娱 · 大模型应用开发工程师（实习）</p></div>
+      <div><small>个人核心工作</small><p>部分生成工具开发运维 + 编写 880 行《新工具接入提示词》规范</p></div>
+      <div><small>平台覆盖范围</small><p>image / video / agent / 3d / data / game 六类工具</p></div>
+      <div><small>治理与计费机制</small><p>httpx 透明代理 · 两阶段计费日志 · 四级费用兜底</p></div>
+    </div>
+
+    <figure class="case-figure" aria-labelledby="commerce-flow-caption">
+      <ol class="case-flow">
+        <li><strong>01 统一入口与身份</strong><span>门户 <code>:28084</code> 路径分发，自动注入 <code>seame_token</code> JWT 与 <code>client_id</code> 指纹</span></li>
+        <li><strong>02 异步提交与 2s 轮询</strong><span><code>POST /api/generate</code> 后台 <code>asyncio.create_task</code> 执行，Phase 1 先记 Pending 预估费用</span></li>
+        <li><strong>03 预览、灯箱与 12h 恢复</strong><span>结果统一落盘与灯箱查看；支持 <code>/api/history</code> 与 <code>SessionStore</code> 跨刷新找回会话</span></li>
+        <li><strong>04 终态实付覆盖与自愈</strong><span>Phase 2 轮询完成覆盖实际 USD；服务重启自动将残留 <code>running</code> 标为中断错误</span></li>
+      </ol>
+      <figcaption class="source-note" id="commerce-flow-caption">图 1：从 SeaMe 平台接入与维护规范提炼的「C 端异步生成 + 透明计费归因」双闭环流程。</figcaption>
+    </figure>
+
+    <div class="case-layout">
+      <aside aria-label="此案例目录">
+        <a href="#scenario">01 平台痛点与角色</a>
+        <a href="#strategy">02 Prompt 即接入规范</a>
+        <a href="#experience">03 C 端异步体验与自愈</a>
+        <a href="#operations">04 透明代理与两阶段计费</a>
+        <a href="#decisions-matrix">05 六项关键设计取舍</a>
+        <a href="#validation">06 验收清单与评估指标</a>
+      </aside>
+      <div class="case-narrative">
+        <section id="scenario">
+          <span class="eyebrow">01 / SCENARIO &amp; MY ROLE</span>
+          <h2>当平台要快速聚合几十款 AI 工具，痛点不在单点模型而在「规模化治理」</h2>
+          <p>电商内容团队每天需要高频调用不同模态的生成能力：商品图换背景、短视频生成（如 Seedance 2.0、Vidu）、扣子（Coze）工作流以及智能体对话。如果每接入一个新模型就各自写一套前后端：</p>
+          <ul class="case-checks">
+            <li><strong>C 端用户心智割裂：</strong>每个工具的输入框、进度提示、历史找回位置都不一样，运营切换工具时学习成本极高，刷新页面后生成的素材容易丢失。</li>
+            <li><strong>开发供给效率受限：</strong>不同开发者写的子工具目录结构、端口分配、密钥配置各自为政，联调和部署经常撞端口或漏配依赖。</li>
+            <li><strong>成本与故障成黑盒：</strong>异步视频/图片生成耗时长，上游模型 API（vtrix / Coze）返回计费字段不统一，管理后台难以定位「具体是哪个用户、在哪个工具、调哪个模型烧掉了预算或频繁报错」。</li>
+          </ul>
+          <p>我在实习期间担任<strong>大模型应用开发工程师</strong>，一方面负责部分工具的开发与日常运维，另一方面将平台的架构约束、前端交互规范、消费统计机制与部署检查项沉淀为 880 行结构化的<strong>《新工具接入提示词》</strong>。上方保留的 <a class="inline-evidence" href="https://www.seame.ai/zh/" target="_blank" rel="noopener">SeaMe 官方市集 ↗</a> 为公开业务入口，本页则从产品策划与平台治理视角复盘其中的设计判断。</p>
+        </section>
+
+        <section id="strategy">
+          <span class="eyebrow">02 / PROMPT-AS-SPEC</span>
+          <h2>用「可执行接入 Prompt + 7 项清单」替代传统 PRD，让新工具生成即合规</h2>
+          <p>传统平台靠文档约束开发者，但文档越长越没人逐条核对。我们的做法是<strong>把平台规范产品化为一份可直接发给 AI 编程助手的 Prompt 模板</strong>：</p>
+          <p class="journey">填写 5 个需求字段（工具名 / 英文 Prefix / 6 大分类 / API 类型 / 功能描述） → 生成标准单文件前端 + 12 端点 FastAPI 后端 → 按 7 项清单完成 4 处平台注册与依赖校验</p>
+          <p>在这套规范下，任何新接入的工具都默认满足以下统一契约：</p>
+          <ul class="case-checks">
+            <li><strong>统一分类与目录契约：</strong>按 <code>image-tools / video-tools / agent-tools / 3d-tools / data-tools / game-tools</code> 归类，三位数递增编号（如 <code>028_xxx</code>），固定包含 <code>app.py</code>、<code>config.json</code>、<code>requirements.txt</code>、<code>start.bat</code> 与单文件 <code>templates/index.html</code>。</li>
+            <li><strong>12 个标准 API 端点：</strong>强制实现 <code>/api/create-task</code>、<code>/api/generate</code>、<code>/api/task-progress/{client_id}/{task_id}/{run_id}</code>、<code>/api/active-tasks</code>、<code>/api/history</code>、<code>/api/load-session</code>、<code>DELETE /api/clear-output</code> 及在线人数 WebSocket <code>/ws/online</code>。</li>
+            <li><strong>中心化密钥继承：</strong>子工具本地 <code>config.json</code> 密钥留空，启动时通过 <code>_load_central_keys()</code> 自动从中央 <code>web/config.json</code> 继承 <code>vtrix_api_key</code> 与 <code>coze_pat</code>，换 Key 时无需修改几十个子工具。</li>
+          </ul>
+        </section>
+
+        <section id="experience">
+          <span class="eyebrow">03 / C-END ASYNC UX &amp; SELF-HEALING</span>
+          <h2>把漫长的异步等待和意外中断，设计成用户可感知、可恢复的闭环</h2>
+          <p>图片和视频生成往往需要数十秒到数分钟。为了不让用户面对「假死转圈」，规范从前端布局到后端生命周期做了三层保障：</p>
+          <ul class="case-checks">
+            <li><strong>统一三步式工作台骨架：</strong>所有工具共用 Sticky 渐变顶栏（展示实时在线人数绿色脉冲圆点、历史记录、密码保护的设置弹窗、返回首页）和编号三面板（① 输入表单 → ② 生成按钮与 2 秒间隔进度轮询 → ③ 结果网格与 Lightbox 灯箱预览）。</li>
+            <li><strong>无需重登的跨刷新会话恢复：</strong>前端在 <code>localStorage</code> 生成持久化 <code>client_id</code> 指纹，配合后端 <code>SessionStore</code>（12 小时 TTL、上限 200 会话）与 <code>output/工具名/client_id/task_id/results/run_id/R_001.png</code> 标准落盘路径，用户关掉网页再打开也能从「历史记录」一键恢复会话与产物。</li>
+            <li><strong>服务重启自愈与并发保护：</strong>后端通过 <code>_TrackedSemaphore(5)</code> 控制并发并持久化 <code>_failures.json / _successes.json</code>；同时注册 <code>@app.on_event("startup")</code> 启动清理钩子——一旦服务重启，自动扫描所有残留的 <code>status == "running"</code> 任务并改写为 <code>error（"服务重启，任务中断"）</code>，彻底杜绝前端无限轮询死等。</li>
+          </ul>
+        </section>
+
+        <section id="operations">
+          <span class="eyebrow">04 / TRANSPARENT PROXY &amp; TWO-PHASE BILLING</span>
+          <h2>开发者零感知的透明代理计费：两阶段日志 + 四级费用兜底</h2>
+          <p>多工具平台最核心的运营诉求是<strong>算清每一分模型调用成本归属于哪个用户、哪个工具、哪个模型</strong>。如果要求每个工具开发者手写计费埋点，不仅容易漏记，独立子插件进程也会丢失上下文。平台通过底层拦截实现了透明治理：</p>
+          <p class="journey">工具调用 cloud.vtrix.ai → httpx 猴子补丁透明拦截 → 本地 /vtrix-proxy/ 转发并提取 ContextVar (user_id + tool_prefix) → Phase 1 记 Pending 预估 → Phase 2 终态覆盖实付 USD → 写入 SQLite VtrixUsageLog</p>
+          <ul class="case-checks">
+            <li><strong>双模式归因覆盖（统一入口 + 独立子插件）：</strong>通过 <code>main.py</code> 挂载的工具自动享受 <code>httpx</code> 猴子补丁拦截；对于带有独立子进程的工具（例如视频复刻工具下的 <code>021_shipinfuke_v2/plug-in/seedance/</code>），规范提供三行 <code>vtrix_hook.install(tool_prefix=..., app=app)</code> 挂载 <code>UserIdMiddleware</code>，确保子进程同样能完成用户级归因。</li>
+            <li><strong>为什么强制用 <code>asyncio.create_task()</code> 而禁用 <code>threading.Thread</code>：</strong>平台通过 Python <code>contextvars.ContextVar</code> 在请求链路中传递 <code>user_id</code> 和 <code>tool_prefix</code>。<code>asyncio.create_task()</code> 会自动继承当前协程的 <code>ContextVar</code>，而新建线程会导致 <code>user_id</code> 丢失变成匿名调用——把这一底层约束写进接入 Prompt，从源头保证了账单归因准确率。</li>
+            <li><strong>异步任务的两阶段记录（Two-Phase Logging）：</strong>针对耗时的视频/图片生成，<strong>Phase 1（POST 提交任务）</strong>立即写入一条 <code>status=pending</code> 的预估费用日志；<strong>Phase 2（GET 轮询完成/失败）</strong>再用实际费用覆盖预估值并更新终态为 <code>success / error</code>，避免长任务执行期间账单缺失。</li>
+            <li><strong>四级费用计算兜底：</strong>代理按优先级提取费用：① API 响应中的 <code>usage.cost</code>（实际 USD）→ ② 顶层 <code>cost</code> 字段 → ③ <code>credits</code> 积分换算（1 积分 = 1 USD）→ ④ 上游未返回费用时按模型规则兜底预估（如视频模型按秒计价：Seedance <strong>$0.15/s</strong>、Vidu <strong>$0.05/s</strong>；图片模型按次计价：Spark Dream <strong>$0.02/次</strong>）。</li>
+          </ul>
+        </section>
+
+        <section id="decisions-matrix">
+          <span class="eyebrow">05 / KEY PRODUCT &amp; ARCHITECTURE TRADEOFFS</span>
+          <h2>从维护规范提炼的 6 项核心产品设计取舍</h2>
+          <div class="tradeoff-table-wrap" role="region" aria-label="SeaMe 平台设计取舍对照表" tabindex="0">
+            <table class="tradeoff-table">
+              <caption>SeaMe 平台在供给效率、C 端体验与成本治理之间的关键决策</caption>
+              <thead>
+                <tr>
+                  <th scope="col">决策维度</th>
+                  <th scope="col">备选方案 / 常见痛点</th>
+                  <th scope="col">我们的实际方案</th>
+                  <th scope="col">背后的产品判断</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>新工具接入方式</strong></td>
+                  <td>写长篇 Wiki 文档，人工 Code Review 逐个纠正接口与样式</td>
+                  <td>编写 880 行结构化《新工具接入提示词》+ 7 项注册检查清单</td>
+                  <td>将平台契约变成 AI 可直接执行的 Prompt，定义从门户卡片到异常处理的完整 Definition of Done</td>
+                </tr>
+                <tr>
+                  <td><strong>C 端多工具界面</strong></td>
+                  <td>每个工具按业务自由设计布局</td>
+                  <td>固定 Sticky 顶栏 + 编号三面板骨架，仅面板 ① 表单字段随工具变化</td>
+                  <td>用统一操作骨架降低跨工具学习成本，同时保留图片/视频/Agent 的参数差异</td>
+                </tr>
+                <tr>
+                  <td><strong>异步計费时机</strong></td>
+                  <td>等任务彻底完成后再写一条计费日志</td>
+                  <td>Phase 1 提交即记 <code>pending</code> + 预估费用；Phase 2 轮询终态覆盖实付</td>
+                  <td>长耗时生成中途可能崩溃或超时，先记预估再覆盖实付，保证任意时刻成本可追踪</td>
+                </tr>
+                <tr>
+                  <td><strong>计费埋点责任</strong></td>
+                  <td>要求每个工具开发者在业务代码里调计费 SDK</td>
+                  <td><code>main.py</code> 透明代理拦截 + 独立子进程 <code>vtrix_hook</code> + 强制 <code>asyncio.create_task</code></td>
+                  <td>把平台治理下沉到基础设施，不增加工具开发负担，同时防止线程切换丢失 <code>ContextVar</code> 用户归因</td>
+                </tr>
+                <tr>
+                  <td><strong>中断与故障反馈</strong></td>
+                  <td>进程重启后旧任务保持 <code>running</code>，前端无限轮询</td>
+                  <td>Startup 自动扫描 <code>_meta.json</code> 将残留 <code>running</code> 改写为中断错误，区分输入错误与服务异常</td>
+                  <td>把失败恢复当成核心体验，给用户明确的下一步动作（改参数或重试），减少无效等待</td>
+                </tr>
+                <tr>
+                  <td><strong>局域网/公网部署</strong></td>
+                  <td>前端硬编码 <code>localhost:port</code>，单工具各自存密钥</td>
+                  <td>强制相对路径 <code>/api/xxx</code> 与动态 <code>location.host</code> WS；中央 <code>web/config.json</code> 继承密钥</td>
+                  <td>确保远程用户访问时 WebSocket 与接口不连回用户本机，且管理员换 Key 与清理磁盘（<code>DELETE /api/clear-output</code>）一键生效</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="validation">
+          <span class="eyebrow">06 / ACCEPTANCE CHECKLIST &amp; METRICS</span>
+          <h2>7 项上线验收清单与两层业务评估指标</h2>
+          <p>在日常开发与运维中，每一款新工具上线前必须通过 <strong>7 项工程与体验检查清单</strong>：</p>
+          <ul class="case-checks">
+            <li><strong>① 目录与单文件前端合规：</strong><code>xx-tools/NNN_工具名/</code> 下 5 项标准文件齐全，前端配色、三步面板、2s 轮询与历史会话恢复正常工作。</li>
+            <li><strong>② 四处平台注册同步：</strong><code>main.py</code>（<code>TOOL_MOUNTS</code>）、<code>web/app.py</code>（<code>TOOLS</code> 门户卡片）、<code>requirements/services_config.py</code>（端口自 8165+ 递增分配）、<code>all_requirements.txt</code> 与 <code>install.bat</code> 检测验证阶段全部对齐。</li>
+            <li><strong>③ 异常自愈与计费归因核验：</strong>验证失败计数（<code>/api/active-tasks</code>）、重启残留清理、磁盘清理端点以及后台 <code>VtrixUsageLog</code> 的用户与工具费用记录准确无误。</li>
+          </ul>
+          <p><strong>从「能跑通」到「有业务价值」的评估延伸（建议指标边界）：</strong>在工程稳定性（任务生成成功率、平均排队与响应耗时）之外，面向电商内容业务建议进一步跟踪两项核心价值指标——<strong>用户确认首份可用素材耗时（Time-to-First-Usable-Asset）</strong>与<strong>每份被采纳素材消耗的真实模型成本（Cost-per-Adopted-Asset）</strong>。生成成功率衡量系统健壮性，单份可用素材耗时与成本则共同衡量 AI 工具的真实交付 ROI。</p>
+          <p class="source-note">口径说明：上文架构机制、接口契约、两阶段计费与四级兜底规则均整理自本人参与维护的 SeaMe 平台接入规范；「首份可用素材耗时」与「单份可用素材成本」为产品复盘提出的评估框架，不代表已公开披露的商业营收数据。</p>
+        </section>
+      </div>
+    </div>
+
+    <nav class="featured-case-nav" aria-label="更多案例">
+      <a class="button primary" href="careerpilot.html">阅读下一篇：职航 CareerPilot 案例 →</a>
+      <a class="button airi-site" href="https://www.seame.ai/zh/" target="_blank" rel="noopener">访问 SeaMe 市集 ↗</a>
+      <a class="text-link" href="../index.html#featured">← 返回精选案例</a>
+    </nav>
+  </main>
+  <footer class="wrap">
+    <a href="../index.html">Wednesday / Iroha-P</a>
+    <a href="#case-content">回到案例开头 ↑</a>
+  </footer>
+</body>
+</html>

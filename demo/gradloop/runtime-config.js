@@ -1,0 +1,1 @@
+window.__GRADLOOP_RUNTIME_CONFIG = {"deployment_mode":"public_pages","local_backend":{"enabled":false},"realtime":{"enabled":false,"proxy_url":"","session_seconds":300},"project_url":"https://github.com/Iroha-P/gradloop-ragsdk-omni","privacy":{"public_only":true}};

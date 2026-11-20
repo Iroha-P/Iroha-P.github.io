@@ -53,6 +53,8 @@ README 图文总览复用 `assets/` 中的现有公开图片；区分应用界�
 
 ## 产品作品集首页
 
-首页使用米白与紫色视觉，默认展示产品视角，技术视角切换由 `portfolio.js` 管理。六篇独立案例位于 `cases/`，分别说明目标用户、产品流程、优先级、验证证据与建议验证方向。案例是对公开实现的结构化整理，不代表已完成用户访谈或业务增长实验。已有 `projects/gradloop/` 技术专题继续保留。首页和案例均预渲染为静态 HTML，禁用 JavaScript 仍能阅读与跳转。
+首页使用米白与紫色视觉，默认展示产品视角，技术视角切换由 `portfolio.js` 管理。首屏后紧接 AIRI Memory Agent 角色大图与长期记忆系统面板，随后通过 4 项核心证据速览条进入两篇精选案例（SeaMe AI 电商工具平台实习规范复盘、职航 CareerPilot Agent 编排与 20 条固定回归评测）。
+
+八篇独立案例位于 `cases/`（含 `ecommerce-ai-tools.html`、`careerpilot.html`、`airi-memory.html`、`gradloop.html` 等），分别说明目标用户、个人职责、产品流程、关键设计取舍、验证证据与建议验证方向。案例是对公开实现与实习维护规范的结构化整理，不代表已完成商业增长实验。已有 `projects/gradloop/` 技术专题继续保留。首页和案例均预渲染为静态 HTML，禁用 JavaScript 仍能阅读与跳转。`history/` 展示当前发布基线「AI 产品经理作品集」。前端 Demo 由 GradLoop 应用仓库的静态构建生成，路径为 `demo/gradloop/`。
 
 公开名称统一 Wednesday / Iroha-P；发布前同时检查 HTML、JavaScript 和元数据中的身份信息。

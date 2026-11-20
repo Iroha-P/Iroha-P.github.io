@@ -25,7 +25,7 @@
 <p><strong>RAG 学习与面试训练 Agent</strong></p>
 <p>证据引用、LangGraph 工作流、人工确认与学习复盘。应用工程与模型实验独立维护。</p>
 <p><code>RAG</code> <code>LangGraph</code> <code>FastAPI / SSE</code></p>
-<p><a href="https://iroha-p.github.io/projects/gradloop/">项目介绍</a> · <a href="https://gradloop-ragsdk-omni.pages.dev/">公开 Demo</a><br><a href="https://github.com/Iroha-P/gradloop-ragsdk-omni">应用源码</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training">模型实验</a></p>
+<p><a href="https://iroha-p.github.io/projects/gradloop/">项目介绍</a> · <a href="https://iroha-p.github.io/demo/gradloop/">公开 Demo</a><br><a href="https://github.com/Iroha-P/gradloop-ragsdk-omni">应用源码</a> · <a href="https://github.com/Iroha-P/gradloop-ragsdk-omni-training">模型实验</a></p>
 <br clear="all">
 
 <h3>MultiModal-QC</h3>
